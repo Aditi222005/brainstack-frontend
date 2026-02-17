@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 const Index = () => {
   const navigate = useNavigate();
 
-  useEffect(() => {
+ {/* useEffect(() => {
     navigate("/signup");
   }, [navigate]);
-
+*/}
   return null;
 };
 

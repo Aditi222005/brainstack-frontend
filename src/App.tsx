@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
+import Layout from "./pages/Layout";
 
 const queryClient = new QueryClient();
 
@@ -16,13 +17,18 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+      <Routes>
+  <Route path="/" element={<Layout />}>
+    <Route index element={<Index />} />
+  </Route>
+
+  {/* Keep login/signup commented for now */}
+  {/* <Route path="/login" element={<Login />} />
+  <Route path="/signup" element={<Signup />} /> */}
+
+  <Route path="*" element={<NotFound />} />
+</Routes>
+
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
