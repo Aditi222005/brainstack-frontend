@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Phone, Lock, Sparkles } from "lucide-react";
 import AuthLayout from "@/components/auth/AuthLayout";
 import AuthInput from "@/components/auth/AuthInput";
@@ -13,15 +13,63 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Signup logic will be added with backend
+    setError("");
+
+    if (!agreed) {
+      setError("Please agree to the terms and conditions");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem("token", data.data.token);
+        localStorage.setItem("user", JSON.stringify(data.data));
+        navigate("/ai-board");
+      } else {
+        setError(data.message || "Failed to create account");
+      }
+    } catch (err: any) {
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <AuthLayout>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-lg text-center"
+          >
+            {error}
+          </motion.div>
+        )}
         <GoogleButton label="Sign up with Google" delay={0.2} />
 
         <motion.div
@@ -88,10 +136,11 @@ const Signup = () => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           type="submit"
-          className="w-full flex items-center justify-center gap-2 rounded-lg btn-gradient px-6 py-3.5 text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:shadow-primary/30"
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-2 rounded-lg btn-gradient px-6 py-3.5 text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:shadow-primary/30 disabled:opacity-70 disabled:cursor-not-allowed"
         >
           <Sparkles className="h-4 w-4" />
-          Continue
+          {loading ? "Creating..." : "Continue"}
         </motion.button>
 
         <motion.div
@@ -103,11 +152,10 @@ const Signup = () => {
           <button
             type="button"
             onClick={() => setAgreed(!agreed)}
-            className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-all duration-200 ${
-              agreed
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border hover:border-primary/50"
-            }`}
+            className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-all duration-200 ${agreed
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-border hover:border-primary/50"
+              }`}
           >
             {agreed && (
               <motion.svg

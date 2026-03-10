@@ -1,21 +1,56 @@
 import { motion } from "framer-motion";
+import { useGoogleLogin } from "@react-oauth/google";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 interface GoogleButtonProps {
   label: string;
-  onClick?: () => void;
   delay?: number;
 }
 
-const GoogleButton = ({ label, onClick, delay = 0 }: GoogleButtonProps) => {
+const GoogleButton = ({ label, delay = 0 }: GoogleButtonProps) => {
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const login = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setLoading(true);
+        const res = await fetch("http://localhost:5000/api/auth/google", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ googleToken: tokenResponse.access_token }),
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem("token", data.data.token);
+          localStorage.setItem("user", JSON.stringify(data.data));
+          navigate("/ai-board");
+        }
+      } catch (err) {
+        console.error("Google login error", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: (error) => console.error("Google Login Failed", error),
+  });
+
   return (
     <motion.button
+      type="button"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-      className="w-full flex items-center justify-center gap-3 rounded-lg btn-gradient px-6 py-3.5 text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:shadow-primary/30"
+      onClick={() => login()}
+      disabled={loading}
+      className="w-full flex items-center justify-center gap-3 rounded-lg btn-gradient px-6 py-3.5 text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:shadow-primary/30 disabled:opacity-70 disabled:cursor-not-allowed"
     >
       <svg className="h-5 w-5" viewBox="0 0 24 24">
         <path
@@ -35,7 +70,7 @@ const GoogleButton = ({ label, onClick, delay = 0 }: GoogleButtonProps) => {
           fill="#EA4335"
         />
       </svg>
-      {label}
+      {loading ? "Connecting..." : label}
     </motion.button>
   );
 };

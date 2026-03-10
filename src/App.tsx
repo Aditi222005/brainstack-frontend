@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import Layout from "./pages/Layout";
+import AIBoard from "./pages/AIBoard";
 
 const queryClient = new QueryClient();
 
@@ -17,17 +18,17 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-      <Routes>
-  <Route path="/" element={<Layout />}>
-    <Route index element={<Index />} />
-  </Route>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Index />} />
+            <Route path="ai-board" element={<AIBoard />} />
+          </Route>
 
-  {/* Keep login/signup commented for now */}
-  {/* <Route path="/login" element={<Login />} />
-  <Route path="/signup" element={<Signup />} /> */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
 
-  <Route path="*" element={<NotFound />} />
-</Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
 
       </BrowserRouter>
     </TooltipProvider>

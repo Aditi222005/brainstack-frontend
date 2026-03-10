@@ -1,4 +1,4 @@
-import { 
+import {
   Brain,
   LayoutDashboard,
   Sparkles,
@@ -13,7 +13,25 @@ import {
 
 import { NavLink } from "@/components/NavLink";
 
+import { useNavigate } from "react-router-dom";
+
 export default function Sidebar() {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await fetch("http://localhost:5000/api/auth/logout", {
+        method: "POST",
+        credentials: "include"
+      });
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+
   return (
     <aside className="h-screen w-64 
                       bg-gradient-to-b from-black via-[#0f0a1f] to-black
@@ -42,7 +60,13 @@ export default function Sidebar() {
       {/* Bottom Section */}
       <div className="p-4 border-t border-purple-500/20 space-y-2">
         <SidebarLink to="/settings" icon={<Settings size={18} />} label="Settings" />
-        <SidebarLink to="/logout" icon={<LogOut size={18} />} label="Logout" />
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 px-4 py-2 rounded-lg hover:bg-red-500/20 hover:text-red-400 transition duration-300 text-left"
+        >
+          <LogOut size={18} />
+          Logout
+        </button>
       </div>
     </aside>
   );
