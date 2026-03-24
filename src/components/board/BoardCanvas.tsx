@@ -4,9 +4,10 @@ import { IdeaCard, Idea } from './IdeaCard';
 
 interface BoardCanvasProps {
     ideas: Idea[];
+    onUpdateIdea?: (id: string, updates: Partial<Idea>) => void;
 }
 
-export function BoardCanvas({ ideas }: BoardCanvasProps) {
+export function BoardCanvas({ ideas, onUpdateIdea }: BoardCanvasProps) {
     const containerRef = useRef<HTMLDivElement>(null);
 
     // Smooth grid pattern background using CSS or Tailwind
@@ -26,8 +27,8 @@ export function BoardCanvas({ ideas }: BoardCanvasProps) {
             />
 
             <div className="relative w-full h-full z-10">
-                {ideas.map((idea, index) => (
-                    <IdeaCard key={idea.id} idea={idea} />
+                {ideas.map((idea) => (
+                    <IdeaCard key={idea.id} idea={idea} onUpdate={onUpdateIdea} />
                 ))}
             </div>
         </div>

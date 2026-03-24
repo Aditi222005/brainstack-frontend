@@ -16,6 +16,7 @@ const LandingCTA = () => {
             >
                 <div className="p-16 rounded-3xl bg-gradient-to-r from-primary/20 via-purple-600/20 to-primary/20 border border-white/10 backdrop-blur-md shadow-[0_0_50px_rgba(168,85,247,0.2)] text-center">
                     <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-6">
+     
                         Start Building Your <br className="hidden md:block" /> BrainStack Today.
                     </h2>
                     <p className="text-xl text-white/70 mb-10 max-w-2xl mx-auto">

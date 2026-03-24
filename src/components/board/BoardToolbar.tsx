@@ -2,20 +2,47 @@ import { Plus, Wand2, LayoutGrid, Trash2, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export function BoardToolbar() {
+const API_BASE = 'http://localhost:5000/api';
+
+export function BoardToolbar({ onAddIdea }: { onAddIdea?: () => void }) {
     const [user, setUser] = useState<any>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
+        // Try localStorage first for instant render, then verify with cookie-based API
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
             setUser(JSON.parse(storedUser));
         }
-    }, []);
+
+        // Verify auth via cookie
+        const verifyUser = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/auth/me`, {
+                    credentials: 'include',
+                });
+                const data = await res.json();
+                console.log('[BoardToolbar] /auth/me response:', data);
+                if (data.success && data.data) {
+                    setUser(data.data);
+                    localStorage.setItem("user", JSON.stringify(data.data));
+                } else {
+                    // Cookie expired or invalid — redirect to login
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    navigate("/login");
+                }
+            } catch (error) {
+                console.error('[BoardToolbar] Auth verification failed:', error);
+            }
+        };
+
+        verifyUser();
+    }, [navigate]);
 
     const handleLogout = async () => {
         try {
-            await fetch("http://localhost:5000/api/auth/logout", {
+            await fetch(`${API_BASE}/auth/logout`, {
                 method: "POST",
                 credentials: "include"
             });
@@ -60,7 +87,7 @@ export function BoardToolbar() {
                 <div className="w-px h-6 bg-purple-500/20 mx-2 hidden sm:block" />
 
                 <div className="flex items-center gap-2">
-                    <button className="flex items-center gap-2 px-4 py-2 hover:bg-purple-500/20 rounded-full text-purple-200 transition-colors text-sm font-medium">
+                    <button onClick={onAddIdea} className="flex items-center gap-2 px-4 py-2 hover:bg-purple-500/20 rounded-full text-purple-200 transition-colors text-sm font-medium">
                         <Plus className="w-4 h-4" />
                         <span className="hidden md:block">Add Idea</span>
                     </button>

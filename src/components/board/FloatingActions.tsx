@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Link as LinkIcon, DownloadCloud, Layers } from 'lucide-react';
 import { useState } from 'react';
 
-export function FloatingActions() {
+export function FloatingActions({ onAddIdea }: { onAddIdea?: () => void }) {
     const [expanded, setExpanded] = useState(false);
 
     return (
@@ -15,7 +15,7 @@ export function FloatingActions() {
                         exit={{ opacity: 0, y: 20, scale: 0.8 }}
                         className="flex flex-col gap-3 mb-2"
                     >
-                        <button className="flex items-center gap-3 bg-[#1a153a] hover:bg-purple-900 border border-purple-500/30 text-white px-4 py-2.5 rounded-full shadow-lg transition-colors group">
+                        <button onClick={onAddIdea} className="flex items-center gap-3 bg-[#1a153a] hover:bg-purple-900 border border-purple-500/30 text-white px-4 py-2.5 rounded-full shadow-lg transition-colors group">
                             <span className="text-sm font-medium">Add Idea</span>
                             <div className="bg-purple-500/20 p-1.5 rounded-full group-hover:bg-purple-500/40 transition-colors">
                                 <Plus className="w-4 h-4 text-purple-300" />

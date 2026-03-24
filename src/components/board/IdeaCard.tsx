@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Tag, Sparkles } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 export interface Idea {
     id: string;
@@ -12,9 +13,46 @@ export interface Idea {
 
 interface IdeaCardProps {
     idea: Idea;
+    onUpdate?: (id: string, updates: Partial<Idea>) => void;
 }
 
-export function IdeaCard({ idea }: IdeaCardProps) {
+export function IdeaCard({ idea, onUpdate }: IdeaCardProps) {
+    const [title, setTitle] = useState(idea.title);
+    const [content, setContent] = useState(idea.content);
+    const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // Sync if parent idea prop changes (e.g. after fetch)
+    useEffect(() => {
+        setTitle(idea.title);
+        setContent(idea.content);
+    }, [idea.title, idea.content]);
+
+    // Debounced save — waits 600ms after user stops typing, then calls onUpdate
+    const debouncedSave = useCallback(
+        (updates: Partial<Idea>) => {
+            if (debounceTimer.current) {
+                clearTimeout(debounceTimer.current);
+            }
+            debounceTimer.current = setTimeout(() => {
+                console.log('[IdeaCard] Auto-saving:', idea.id, updates);
+                onUpdate?.(idea.id, updates);
+            }, 600);
+        },
+        [idea.id, onUpdate]
+    );
+
+    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newTitle = e.target.value;
+        setTitle(newTitle);
+        debouncedSave({ title: newTitle });
+    };
+
+    const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const newContent = e.target.value;
+        setContent(newContent);
+        debouncedSave({ content: newContent });
+    };
+
     return (
         <motion.div
             drag
@@ -29,14 +67,18 @@ export function IdeaCard({ idea }: IdeaCardProps) {
             <div className="flex justify-between items-start mb-2">
                 <input
                     type="text"
-                    defaultValue={idea.title}
+                    value={title}
+                    onChange={handleTitleChange}
                     className="bg-transparent border-none outline-none text-purple-100 font-semibold w-full"
+                    placeholder="Idea title..."
                 />
                 <Sparkles className="w-4 h-4 text-purple-400 opacity-50 group-hover:opacity-100 transition-opacity flex-shrink-0" />
             </div>
             <textarea
-                defaultValue={idea.content}
+                value={content}
+                onChange={handleContentChange}
                 className="w-full bg-transparent border-none outline-none text-gray-300 text-sm resize-none h-20"
+                placeholder="Describe your idea..."
             />
             <div className="flex gap-2 mt-3 flex-wrap">
                 {idea.tags.map(tag => (
