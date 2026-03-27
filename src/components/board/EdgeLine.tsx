@@ -26,47 +26,54 @@ function getBezierPath(
     tx: number, ty: number,
     type: EdgeType = 'relates_to'
 ) {
-    const sourceX = sx + CARD_WIDTH;
-    const sourceY = sy + CARD_HEIGHT / 2;
-    const targetX = tx;
-    const targetY = ty + CARD_HEIGHT / 2;
-
-    let fromX = sourceX;
-    let fromY = sourceY;
-    let toX = targetX;
-    let toY = targetY;
+    let fromX, fromY, toX, toY;
+    let cpFromX, cpFromY, cpToX, cpToY;
 
     const dx = tx - sx;
     const dy = ty - sy;
 
-    if (dx < -CARD_WIDTH / 2) {
-        fromX = sx;
-        fromY = sy + CARD_HEIGHT / 2;
-        toX = tx + CARD_WIDTH;
-        toY = ty + CARD_HEIGHT / 2;
-    }
-    else if (Math.abs(dy) > Math.abs(dx) * 1.5) {
-        if (dy < 0) {
-            fromX = sx + CARD_WIDTH / 2;
-            fromY = sy;
-            toX = tx + CARD_WIDTH / 2;
-            toY = ty + CARD_HEIGHT;
+    if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 0) {
+            fromX = sx + CARD_WIDTH;
+            fromY = sy + CARD_HEIGHT / 2;
+            toX = tx;
+            toY = ty + CARD_HEIGHT / 2;
         } else {
+            fromX = sx;
+            fromY = sy + CARD_HEIGHT / 2;
+            toX = tx + CARD_WIDTH;
+            toY = ty + CARD_HEIGHT / 2;
+        }
+        let cpOffset = Math.min(Math.abs(fromX - toX) * 0.4, 120);
+        if (type === 'contradicts') cpOffset = 20;
+
+        cpFromX = fromX + (toX > fromX ? cpOffset : -cpOffset);
+        cpFromY = fromY;
+        cpToX = toX + (toX > fromX ? -cpOffset : cpOffset);
+        cpToY = toY;
+    } else {
+        if (dy > 0) {
             fromX = sx + CARD_WIDTH / 2;
             fromY = sy + CARD_HEIGHT;
             toX = tx + CARD_WIDTH / 2;
             toY = ty;
+        } else {
+            fromX = sx + CARD_WIDTH / 2;
+            fromY = sy;
+            toX = tx + CARD_WIDTH / 2;
+            toY = ty + CARD_HEIGHT;
         }
+        let cpOffset = Math.min(Math.abs(fromY - toY) * 0.4, 120);
+        if (type === 'contradicts') cpOffset = 20;
+
+        cpFromX = fromX;
+        cpFromY = fromY + (toY > fromY ? cpOffset : -cpOffset);
+        cpToX = toX;
+        cpToY = toY + (toY > fromY ? -cpOffset : cpOffset);
     }
 
-    let cpOffset = Math.min(Math.abs(fromX - toX) * 0.4, 120);
-    if (type === 'contradicts') cpOffset = 20;
-
-    const cpFromX = fromX + (toX > fromX ? cpOffset : -cpOffset);
-    const cpToX = toX + (toX > fromX ? -cpOffset : cpOffset);
-
     return {
-        path: `M ${fromX} ${fromY} C ${cpFromX} ${fromY}, ${cpToX} ${toY}, ${toX} ${toY}`,
+        path: `M ${fromX} ${fromY} C ${cpFromX} ${cpFromY}, ${cpToX} ${cpToY}, ${toX} ${toY}`,
         midX: (fromX + toX) / 2,
         midY: (fromY + toY) / 2,
     };
@@ -156,8 +163,24 @@ interface DraftEdgeLineProps {
 }
 
 export function DraftEdgeLine({ fromPos, toPos }: DraftEdgeLineProps) {
-    const cpOffset = Math.min(Math.abs(fromPos.x - toPos.x) * 0.4, 100);
-    const path = `M ${fromPos.x} ${fromPos.y} C ${fromPos.x + cpOffset} ${fromPos.y}, ${toPos.x - cpOffset} ${toPos.y}, ${toPos.x} ${toPos.y}`;
+    const dx = toPos.x - fromPos.x;
+    const dy = toPos.y - fromPos.y;
+    let cpFromX = fromPos.x;
+    let cpFromY = fromPos.y;
+    let cpToX = toPos.x;
+    let cpToY = toPos.y;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        const cpOffset = Math.min(Math.abs(dx) * 0.4, 100);
+        cpFromX += (dx > 0 ? cpOffset : -cpOffset);
+        cpToX += (dx > 0 ? -cpOffset : cpOffset);
+    } else {
+        const cpOffset = Math.min(Math.abs(dy) * 0.4, 100);
+        cpFromY += (dy > 0 ? cpOffset : -cpOffset);
+        cpToY += (dy > 0 ? -cpOffset : cpOffset);
+    }
+    
+    const path = `M ${fromPos.x} ${fromPos.y} C ${cpFromX} ${cpFromY}, ${cpToX} ${cpToY}, ${toPos.x} ${toPos.y}`;
 
     return (
         <motion.path

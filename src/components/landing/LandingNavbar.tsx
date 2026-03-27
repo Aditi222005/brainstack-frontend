@@ -61,7 +61,7 @@ const LandingNavbar = () => {
         >
             <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
                 <Link to="/" className="flex items-center gap-2 group">
-                    <div className="bg-primary/15 p-2 rounded-xl group-hover:bg-primary/25 transition-colors">
+                    <div className="bg-primary/0 p-2 rounded-xl group-hover:bg-primary/25 transition-colors">
                         <img src="/favicon.png" alt="BrainStack" className="w-20 h-15 text-primary" />
                     </div>
                     <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">

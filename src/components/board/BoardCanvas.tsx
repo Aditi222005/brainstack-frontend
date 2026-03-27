@@ -40,7 +40,24 @@ export function BoardCanvas({
     const rafRef = useRef<number | null>(null);
 
     // Zoom & Pan State
-    const [viewTransform, setViewTransform] = useState({ x: 0, y: 0, zoom: 0.85 });
+    const [viewTransform, setViewTransform] = useState(() => {
+        try {
+            const saved = localStorage.getItem('brainstack-canvas-transform');
+            if (saved) return JSON.parse(saved);
+        } catch (e) {
+            console.error('Failed to restore canvas transform:', e);
+        }
+        return { x: 0, y: 0, zoom: 0.85 };
+    });
+    
+    useEffect(() => {
+        try {
+            localStorage.setItem('brainstack-canvas-transform', JSON.stringify(viewTransform));
+        } catch (e) {
+            console.error('Failed to save canvas transform:', e);
+        }
+    }, [viewTransform]);
+
     const [isPanning, setIsPanning] = useState(false);
     const [isLocked, setIsLocked] = useState(true);
 
@@ -57,6 +74,36 @@ export function BoardCanvas({
     const [clusters, setClusters] = useState<Cluster[]>([]);
 
     const connectionHandledRef = useRef(false);
+
+    // Refs for stable callbacks
+    const ideasRef = useRef(ideas);
+    useEffect(() => { ideasRef.current = ideas; }, [ideas]);
+    const mousePosRef = useRef(mousePos);
+    useEffect(() => { mousePosRef.current = mousePos; }, [mousePos]);
+
+    const handleNodeClick = useCallback((id: string, shiftKey: boolean) => {
+        if (shiftKey) {
+            setSelectedNodeIds(prev => {
+                const next = new Set(prev);
+                if (next.has(id)) next.delete(id);
+                else next.add(id);
+                return next;
+            });
+        } else {
+            setSelectedNodeIds(new Set([id]));
+        }
+    }, []);
+
+    const handleConnectionEnd = useCallback((id: string) => {
+        connectionHandledRef.current = true;
+        if (connectingFromId && connectingFromId !== id) {
+            setPendingConnection({ source: connectingFromId, target: id });
+            setSelectorPos({ x: mousePosRef.current.x, y: mousePosRef.current.y });
+        }
+        setIsConnecting(false);
+        setConnectingFromId(null);
+        setConnectingFromPos(null);
+    }, [connectingFromId]);
 
     // Memoized connectivity
     const connectedNodeIds = useMemo(() => {
@@ -157,7 +204,7 @@ export function BoardCanvas({
     }, [isConnecting, mousePos]);
 
     const handleConnectionStart = useCallback((nodeId: string, side: string, e: React.PointerEvent) => {
-        const idea = ideas.find(i => i.id === nodeId);
+        const idea = ideasRef.current.find(i => i.id === nodeId);
         if (!idea) return;
         if (containerRef.current) containerRectRef.current = containerRef.current.getBoundingClientRect();
         connectionHandledRef.current = false;
@@ -170,26 +217,40 @@ export function BoardCanvas({
         setConnectingFromId(nodeId);
         setConnectingFromPos({ x: hX, y: hY });
         setMousePos({ x: e.clientX, y: e.clientY });
-    }, [ideas]);
+    }, []);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') { setIsConnecting(false); setPendingConnection(null); }
         };
-        const handlePointerMove = (e: PointerEvent) => setMousePos({ x: e.clientX, y: e.clientY });
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
+    useEffect(() => {
+        if (!isConnecting) return;
+
+        let trackingRaf: number | null = null;
+        const handlePointerMove = (e: PointerEvent) => {
+            if (trackingRaf) return;
+            trackingRaf = requestAnimationFrame(() => {
+                setMousePos({ x: e.clientX, y: e.clientY });
+                trackingRaf = null;
+            });
+        };
         const handlePointerUp = () => {
             if (!connectionHandledRef.current) { setIsConnecting(false); setConnectingFromId(null); }
             connectionHandledRef.current = false;
         };
-        window.addEventListener('keydown', handleKeyDown);
+
         window.addEventListener('pointermove', handlePointerMove);
         window.addEventListener('pointerup', handlePointerUp);
         return () => {
-            window.removeEventListener('keydown', handleKeyDown);
+            if (trackingRaf) cancelAnimationFrame(trackingRaf);
             window.removeEventListener('pointermove', handlePointerMove);
             window.removeEventListener('pointerup', handlePointerUp);
         };
-    }, []);
+    }, [isConnecting]);
 
     const resetView = () => setViewTransform({ x: 0, y: 0, zoom: 0.85 });
 
@@ -275,7 +336,7 @@ export function BoardCanvas({
                     <div className="relative w-full h-full z-10 p-20">
                         {ideas.map((idea) => {
                             const hv = hoveredNodeId === idea.id, cn = connectedNodeIds.has(idea.id), sl = selectedNodeIds.has(idea.id);
-                            return <div key={idea.id} onMouseEnter={() => setHoveredNodeId(idea.id)} onMouseLeave={() => setHoveredNodeId(null)} onClick={(e) => { e.stopPropagation(); handleDoubleClick(idea.id, e.shiftKey); }} className={`${sl ? 'z-[60]' : ''}`}><IdeaCard idea={idea} onUpdate={onUpdateIdea} onConnectionStart={handleConnectionStart} onConnectionEnd={(id) => { connectionHandledRef.current = true; if (connectingFromId && connectingFromId !== id) { setPendingConnection({ source: connectingFromId, target: id }); setSelectorPos({ x: mousePos.x, y: mousePos.y }); } setIsConnecting(false); setConnectingFromId(null); setConnectingFromPos(null); }} isConnecting={isConnecting} connectingFromId={connectingFromId} highlighted={hv || cn || sl} dimmed={!!(hoveredNodeId && !hv && !cn) && !sl} /></div>;
+                            return <div key={idea.id} onMouseEnter={() => setHoveredNodeId(idea.id)} onMouseLeave={() => setHoveredNodeId(null)} onClick={(e) => { e.stopPropagation(); handleNodeClick(idea.id, e.shiftKey); }} className={`${sl ? 'z-[60]' : ''}`}><IdeaCard idea={idea} onUpdate={onUpdateIdea} onConnectionStart={handleConnectionStart} onConnectionEnd={handleConnectionEnd} isConnecting={isConnecting} connectingFromId={connectingFromId} highlighted={hv || cn || sl} dimmed={!!(hoveredNodeId && !hv && !cn) && !sl} /></div>;
                         })}
                     </div>
                 </div>
