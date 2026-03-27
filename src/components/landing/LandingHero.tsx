@@ -1,19 +1,15 @@
 import {
     motion,
-    useScroll,
-    useTransform,
     useMotionValue,
     useSpring,
+    useTransform,
     MotionValue
 } from "framer-motion";
-import { ArrowRight, Sparkles, Wand2 } from "lucide-react";
+import { ArrowRight, Sparkles, Wand2, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 
 const easeOutQuint = [0.22, 1, 0.36, 1] as const;
-
-
-
 
 
 /* ---------------- PARTICLES ---------------- */
@@ -40,7 +36,7 @@ const FloatingParticles = () => {
                         repeat: Infinity,
                         ease: "easeInOut"
                     }}
-                    className="absolute w-1.5 h-1.5 rounded-full bg-purple-400 blur-[1px]"
+                    className="absolute w-1.5 h-1.5 rounded-full bg-primary blur-[1px]"
                 />
             ))}
         </div>
@@ -48,15 +44,12 @@ const FloatingParticles = () => {
 };
 
 
-
-
-
 /* ---------------- GRID BACKGROUND ---------------- */
 
 const AnimatedGrid = () => {
     return (
-        <div className="absolute inset-0 opacity-[0.08] pointer-events-none">
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0f_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0f_1px,transparent_1px)] bg-[size:40px_40px]" />
+        <div className="absolute inset-0 opacity-[0.04] pointer-events-none">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--primary))/0.1_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--primary))/0.1_1px,transparent_1px)] bg-[size:40px_40px]" />
 
             <motion.div
                 animate={{ opacity: [0.05, 0.15, 0.05] }}
@@ -66,9 +59,6 @@ const AnimatedGrid = () => {
         </div>
     );
 };
-
-
-
 
 
 /* ---------------- FLOATING FEATURES ---------------- */
@@ -83,15 +73,12 @@ const FloatingFeature = ({ text, className }: any) => {
                 repeat: Infinity,
                 ease: "easeInOut"
             }}
-            className={`absolute px-5 py-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md text-white/80 text-sm ${className}`}
+            className={`absolute px-5 py-3 rounded-xl bg-card/60 border border-border backdrop-blur-md text-foreground/80 text-sm shadow-xl ${className}`}
         >
             {text}
         </motion.div>
     );
 };
-
-
-
 
 
 /* ---------------- KNOWLEDGE NODES ---------------- */
@@ -108,13 +95,10 @@ const KnowledgeNode = ({ x, y }: any) => {
                 duration: 3,
                 repeat: Infinity
             }}
-            className="absolute w-3 h-3 bg-purple-500 rounded-full shadow-[0_0_12px_rgba(168,85,247,0.9)]"
+            className="absolute w-3 h-3 bg-primary rounded-full shadow-[0_0_12px_hsl(var(--primary))]"
         />
     );
 };
-
-
-
 
 
 /* ---------------- MAGNETIC BUTTON ---------------- */
@@ -164,9 +148,6 @@ const MagneticButton = ({ children, className, ...props }: any) => {
 };
 
 
-
-
-
 /* ---------------- HERO DASHBOARD ---------------- */
 
 interface DashboardProps {
@@ -208,17 +189,17 @@ const HeroDashboardPreview = ({ mouseX, mouseY }: DashboardProps) => {
         >
             <motion.div
                 style={{ rotateX, rotateY }}
-                className="rounded-xl border border-white/10 bg-black/40 backdrop-blur-xl p-1 shadow-2xl"
+                className="rounded-xl border border-border bg-card/40 backdrop-blur-xl p-1 shadow-2xl shadow-primary/5"
             >
-                <div className="rounded-lg overflow-hidden bg-[#0A0A0A] aspect-[16/10] flex flex-col">
+                <div className="rounded-lg overflow-hidden bg-background aspect-[16/10] flex flex-col">
 
-                    <div className="h-14 border-b border-white/10 flex items-center px-6 justify-center">
+                    <div className="h-14 border-b border-border flex items-center px-6 justify-center">
 
-                        <div className="max-w-md w-full h-8 bg-white/5 rounded-full border border-white/10 flex items-center px-4">
+                        <div className="max-w-md w-full h-8 bg-primary/5 rounded-full border border-border flex items-center px-4">
 
-                            <Wand2 className="w-4 h-4 text-purple-400 mr-2" />
+                            <Wand2 className="w-4 h-4 text-secondary mr-2" />
 
-                            <span className="text-sm text-white/50 font-mono">
+                            <span className="text-sm text-foreground/50 font-mono">
                                 {text}
                             </span>
 
@@ -231,30 +212,30 @@ const HeroDashboardPreview = ({ mouseX, mouseY }: DashboardProps) => {
                         <motion.div
                             animate={{ y: [0, -15, 0] }}
                             transition={{ repeat: Infinity, duration: 6 }}
-                            className="absolute top-[30%] left-[20%] w-56 p-5 bg-white/5 border border-white/10 rounded-xl"
+                            className="absolute top-[30%] left-[20%] w-56 p-5 bg-primary/5 border border-primary/10 rounded-xl"
                         >
-                            <div className="text-white text-sm mb-3">
+                            <div className="text-foreground text-sm mb-3">
                                 AI Research
                             </div>
 
-                            <div className="w-full h-2 bg-purple-500/40 rounded mb-2" />
+                            <div className="w-full h-2 bg-primary/40 rounded mb-2" />
 
-                            <div className="w-3/4 h-2 bg-white/10 rounded" />
+                            <div className="w-3/4 h-2 bg-foreground/10 rounded" />
                         </motion.div>
 
 
                         <motion.div
                             animate={{ y: [0, 15, 0] }}
                             transition={{ repeat: Infinity, duration: 7 }}
-                            className="absolute bottom-[25%] right-[25%] w-60 p-5 bg-white/5 border border-white/10 rounded-xl"
+                            className="absolute bottom-[25%] right-[25%] w-60 p-5 bg-secondary/5 border border-secondary/10 rounded-xl"
                         >
-                            <div className="text-white text-sm mb-3">
+                            <div className="text-foreground text-sm mb-3">
                                 Cognitive Models
                             </div>
 
-                            <div className="w-full h-2 bg-blue-500/40 rounded mb-2" />
+                            <div className="w-full h-2 bg-secondary/40 rounded mb-2" />
 
-                            <div className="w-4/5 h-2 bg-white/10 rounded" />
+                            <div className="w-4/5 h-2 bg-foreground/10 rounded" />
                         </motion.div>
 
                     </div>
@@ -265,13 +246,15 @@ const HeroDashboardPreview = ({ mouseX, mouseY }: DashboardProps) => {
 };
 
 
-
-
-
 /* ---------------- MAIN HERO ---------------- */
 
 const LandingHero = () => {
     const containerRef = useRef<HTMLDivElement>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        setIsLoggedIn(!!localStorage.getItem("token"));
+    }, []);
 
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
@@ -332,7 +315,7 @@ const LandingHero = () => {
                 className="relative z-10 max-w-4xl mx-auto px-6 text-center"
             >
 
-                <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 border border-white/10 text-sm mb-8 text-purple-400">
+                <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary/10 border border-primary/20 text-sm mb-8 text-primary">
 
                     <Sparkles className="w-4 h-4 animate-pulse" />
 
@@ -343,13 +326,13 @@ const LandingHero = () => {
                 </div>
 
 
-                <h1 className="text-6xl md:text-[5rem] font-[800] tracking-tight text-white mb-6 leading-[1.1]">
+                <h1 className="text-6xl md:text-[5rem] font-[800] tracking-tight text-foreground mb-6 leading-[1.1]">
 
                     Build Your Second Brain
 
                     <br />
 
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-blue-400 to-pink-400">
+                    <span className="text-gradient">
 
                         with BrainStack
 
@@ -358,7 +341,7 @@ const LandingHero = () => {
                 </h1>
 
 
-                <p className="text-lg md:text-2xl text-white/50 mb-12 max-w-2xl mx-auto">
+                <p className="text-lg md:text-2xl text-foreground/60 mb-12 max-w-2xl mx-auto">
 
                     Capture ideas instantly, organize knowledge organically,
                     and visualize every connection in a deeply intelligent
@@ -369,21 +352,27 @@ const LandingHero = () => {
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
 
-                    <MagneticButton
-                        to="/signup"
-                        className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-blue-600 text-white px-10 py-5 rounded-full font-semibold"
-                    >
-
-                        Get Started Free
-
-                        <ArrowRight className="w-5 h-5" />
-
-                    </MagneticButton>
-
+                    {isLoggedIn ? (
+                        <MagneticButton
+                            to="/ai-board"
+                            className="flex items-center gap-2 btn-gradient-accent text-white px-10 py-5 rounded-full font-semibold shadow-xl hover:shadow-secondary/30 transition-shadow"
+                        >
+                            <LayoutDashboard className="w-5 h-5" />
+                            Go to Dashboard
+                        </MagneticButton>
+                    ) : (
+                        <MagneticButton
+                            to="/signup"
+                            className="flex items-center gap-2 btn-gradient-accent text-white px-10 py-5 rounded-full font-semibold shadow-xl hover:shadow-secondary/30 transition-shadow"
+                        >
+                            Get Started Free
+                            <ArrowRight className="w-5 h-5" />
+                        </MagneticButton>
+                    )}
 
                     <a
                         href="#visual-board"
-                        className="flex items-center gap-2 bg-white/5 border border-white/10 text-white px-10 py-5 rounded-full font-semibold hover:bg-white/10"
+                        className="flex items-center gap-2 bg-card/60 border border-border text-foreground px-10 py-5 rounded-full font-semibold hover:bg-card/80 hover:border-primary/30 transition-all shadow-lg"
                     >
                         View Demo
                     </a>
@@ -396,28 +385,28 @@ const LandingHero = () => {
                 <div className="flex justify-center gap-12 mt-10">
 
                     <div>
-                        <p className="text-3xl font-bold text-white">
+                        <p className="text-3xl font-bold text-foreground">
                             10k+
                         </p>
-                        <p className="text-white/40 text-sm">
+                        <p className="text-muted-foreground text-sm">
                             Ideas Captured
                         </p>
                     </div>
 
                     <div>
-                        <p className="text-3xl font-bold text-white">
+                        <p className="text-3xl font-bold text-foreground">
                             2k+
                         </p>
-                        <p className="text-white/40 text-sm">
+                        <p className="text-muted-foreground text-sm">
                             Active Thinkers
                         </p>
                     </div>
 
                     <div>
-                        <p className="text-3xl font-bold text-white">
+                        <p className="text-3xl font-bold text-foreground">
                             95%
                         </p>
-                        <p className="text-white/40 text-sm">
+                        <p className="text-muted-foreground text-sm">
                             Faster Learning
                         </p>
                     </div>

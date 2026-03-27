@@ -58,9 +58,9 @@ const itemVariants = {
 
 const LandingFeatures = () => {
     return (
-        <section id="features" className="py-32 relative bg-background/50 border-t border-b border-white/5 overflow-hidden">
+        <section id="features" className="py-32 relative bg-[#0B0F19]/50 border-t border-b border-indigo-500/5 overflow-hidden">
             {/* Speed line ambient bg */}
-            <div className="absolute inset-0 pointer-events-none opacity-20" style={{ background: "repeating-linear-gradient(transparent, transparent 40px, rgba(168, 85, 247, 0.05) 40px, rgba(168, 85, 247, 0.05) 41px)" }} />
+            <div className="absolute inset-0 pointer-events-none opacity-20" style={{ background: "repeating-linear-gradient(transparent, transparent 40px, rgba(99, 102, 241, 0.05) 40px, rgba(99, 102, 241, 0.05) 41px)" }} />
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
                 <motion.div
@@ -70,10 +70,10 @@ const LandingFeatures = () => {
                     transition={{ duration: 1, ease: easeOutQuint }}
                     className="text-center mb-20"
                 >
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-[800] bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-400 to-blue-400 mb-6 tracking-tight">
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-[800] bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-indigo-300 to-cyan-400 mb-6 tracking-tight">
                         Everything you need.
                     </h2>
-                    <p className="text-white/50 text-xl max-w-2xl mx-auto font-light leading-relaxed">
+                    <p className="text-[#E5E7EB]/45 text-xl max-w-2xl mx-auto font-light leading-relaxed">
                         A comprehensive suite of tools built to extend your mind, seamlessly connected in a unified intelligent workspace.
                     </p>
                 </motion.div>
@@ -91,22 +91,22 @@ const LandingFeatures = () => {
                             variants={itemVariants}
                             whileHover={{ scale: 1.04, y: -5 }}
                             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                            className="group p-8 rounded-3xl bg-white/[0.03] border border-white/10 hover:border-transparent transition-all duration-500 backdrop-blur-xl shadow-lg relative overflow-hidden"
+                            className="group p-8 rounded-3xl bg-[#111827]/40 border border-indigo-500/10 hover:border-transparent transition-all duration-500 backdrop-blur-xl shadow-lg relative overflow-hidden"
                         >
                             {/* Hover Neon Edge Glow */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/15 via-transparent to-cyan-500/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
                             {/* Border gradient trick */}
-                            <div className="absolute inset-0 rounded-3xl p-[1px] bg-gradient-to-br from-white/10 via-transparent to-white/5 opacity-100 group-hover:opacity-0 transition-opacity duration-500 -z-10" />
-                            <div className="absolute inset-0 rounded-3xl p-[1px] bg-gradient-to-br from-primary/50 via-purple-500/0 to-blue-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
+                            <div className="absolute inset-0 rounded-3xl p-[1px] bg-gradient-to-br from-[#E5E7EB]/8 via-transparent to-[#E5E7EB]/4 opacity-100 group-hover:opacity-0 transition-opacity duration-500 -z-10" />
+                            <div className="absolute inset-0 rounded-3xl p-[1px] bg-gradient-to-br from-indigo-500/40 via-indigo-500/0 to-cyan-500/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
 
                             <div className="relative z-10">
-                                <div className="text-white/60 mb-6 group-hover:text-primary group-hover:drop-shadow-[0_0_15px_rgba(168,85,247,0.5)] transition-all duration-300">
+                                <div className="text-[#E5E7EB]/50 mb-6 group-hover:text-indigo-400 group-hover:drop-shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all duration-300">
                                     {feature.icon}
                                 </div>
-                                <h3 className="text-2xl font-semibold text-white/90 mb-3 group-hover:text-white transition-colors">
+                                <h3 className="text-2xl font-semibold text-[#E5E7EB]/85 mb-3 group-hover:text-[#E5E7EB] transition-colors">
                                     {feature.title}
                                 </h3>
-                                <p className="text-white/50 leading-relaxed font-light group-hover:text-white/70 transition-colors">
+                                <p className="text-[#E5E7EB]/45 leading-relaxed font-light group-hover:text-[#E5E7EB]/65 transition-colors">
                                     {feature.description}
                                 </p>
                             </div>

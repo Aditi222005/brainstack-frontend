@@ -15,21 +15,21 @@ export function FloatingActions({ onAddIdea }: { onAddIdea?: () => void }) {
                         exit={{ opacity: 0, y: 20, scale: 0.8 }}
                         className="flex flex-col gap-3 mb-2"
                     >
-                        <button onClick={onAddIdea} className="flex items-center gap-3 bg-[#1a153a] hover:bg-purple-900 border border-purple-500/30 text-white px-4 py-2.5 rounded-full shadow-lg transition-colors group">
+                        <button onClick={onAddIdea} className="flex items-center gap-3 bg-[#111827] hover:bg-indigo-900/40 border border-indigo-500/20 text-white px-4 py-2.5 rounded-full shadow-lg transition-colors group">
                             <span className="text-sm font-medium">Add Idea</span>
-                            <div className="bg-purple-500/20 p-1.5 rounded-full group-hover:bg-purple-500/40 transition-colors">
-                                <Plus className="w-4 h-4 text-purple-300" />
+                            <div className="bg-indigo-500/15 p-1.5 rounded-full group-hover:bg-indigo-500/30 transition-colors">
+                                <Plus className="w-4 h-4 text-indigo-300" />
                             </div>
                         </button>
-                        <button className="flex items-center gap-3 bg-[#1a153a] hover:bg-blue-900 border border-blue-500/30 text-white px-4 py-2.5 rounded-full shadow-lg transition-colors group">
+                        <button className="flex items-center gap-3 bg-[#111827] hover:bg-cyan-900/30 border border-cyan-500/20 text-white px-4 py-2.5 rounded-full shadow-lg transition-colors group">
                             <span className="text-sm font-medium">Add Group</span>
-                            <div className="bg-blue-500/20 p-1.5 rounded-full group-hover:bg-blue-500/40 transition-colors">
-                                <Layers className="w-4 h-4 text-blue-300" />
+                            <div className="bg-cyan-500/15 p-1.5 rounded-full group-hover:bg-cyan-500/30 transition-colors">
+                                <Layers className="w-4 h-4 text-cyan-300" />
                             </div>
                         </button>
-                        <button className="flex items-center gap-3 bg-[#1a153a] hover:bg-pink-900 border border-pink-500/30 text-white px-4 py-2.5 rounded-full shadow-lg transition-colors group">
+                        <button className="flex items-center gap-3 bg-[#111827] hover:bg-pink-900/30 border border-pink-500/20 text-white px-4 py-2.5 rounded-full shadow-lg transition-colors group">
                             <span className="text-sm font-medium">Import Notes</span>
-                            <div className="bg-pink-500/20 p-1.5 rounded-full group-hover:bg-pink-500/40 transition-colors">
+                            <div className="bg-pink-500/15 p-1.5 rounded-full group-hover:bg-pink-500/30 transition-colors">
                                 <DownloadCloud className="w-4 h-4 text-pink-300" />
                             </div>
                         </button>
@@ -39,7 +39,7 @@ export function FloatingActions({ onAddIdea }: { onAddIdea?: () => void }) {
 
             <button
                 onClick={() => setExpanded(!expanded)}
-                className="w-16 h-16 bg-gradient-to-tr from-purple-600 to-blue-600 rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(168,85,247,0.5)] hover:shadow-[0_0_35px_rgba(168,85,247,0.8)] transition-all hover:scale-105"
+                className="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-cyan-500 rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(99,102,241,0.5)] hover:shadow-[0_0_35px_rgba(99,102,241,0.8)] transition-all hover:scale-105"
             >
                 <motion.div
                     animate={{ rotate: expanded ? 45 : 0 }}

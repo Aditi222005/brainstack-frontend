@@ -1,12 +1,16 @@
-import { motion } from 'framer-motion';
+import React, { useState, useRef, useCallback, useEffect, memo } from 'react';
+import { motion, PanInfo } from 'framer-motion';
 import { Tag, Sparkles } from 'lucide-react';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { ConnectionHandle } from './ConnectionHandle';
+import { NodeColor, NODE_COLORS } from './boardTheme';
+import { ColorPicker } from './ColorPicker';
 
 export interface Idea {
     id: string;
     title: string;
     content: string;
     tags: string[];
+    color: NodeColor;
     x: number;
     y: number;
 }
@@ -14,27 +18,48 @@ export interface Idea {
 interface IdeaCardProps {
     idea: Idea;
     onUpdate?: (id: string, updates: Partial<Idea>) => void;
+    onConnectionStart?: (nodeId: string, side: string, e: React.PointerEvent) => void;
+    onConnectionEnd?: (nodeId: string) => void;
+    isConnecting?: boolean;
+    connectingFromId?: string | null;
+    dimmed?: boolean;
+    highlighted?: boolean;
 }
 
-export function IdeaCard({ idea, onUpdate }: IdeaCardProps) {
+export const IdeaCard = memo(function IdeaCard({
+    idea,
+    onUpdate,
+    onConnectionStart,
+    onConnectionEnd,
+    isConnecting = false,
+    connectingFromId = null,
+    dimmed = false,
+    highlighted = false,
+}: IdeaCardProps) {
     const [title, setTitle] = useState(idea.title);
     const [content, setContent] = useState(idea.content);
+    const [position, setPosition] = useState({ x: idea.x, y: idea.y });
     const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Sync if parent idea prop changes (e.g. after fetch)
+    // Color system config
+    const colorStyle = NODE_COLORS[idea.color || 'blue'];
+    const isValidTarget = isConnecting && connectingFromId !== idea.id;
+
     useEffect(() => {
         setTitle(idea.title);
         setContent(idea.content);
     }, [idea.title, idea.content]);
 
-    // Debounced save — waits 600ms after user stops typing, then calls onUpdate
+    useEffect(() => {
+        setPosition({ x: idea.x, y: idea.y });
+    }, [idea.x, idea.y]);
+
     const debouncedSave = useCallback(
         (updates: Partial<Idea>) => {
             if (debounceTimer.current) {
                 clearTimeout(debounceTimer.current);
             }
             debounceTimer.current = setTimeout(() => {
-                console.log('[IdeaCard] Auto-saving:', idea.id, updates);
                 onUpdate?.(idea.id, updates);
             }, 600);
         },
@@ -53,41 +78,76 @@ export function IdeaCard({ idea, onUpdate }: IdeaCardProps) {
         debouncedSave({ content: newContent });
     };
 
+    const handleColorChange = (newColor: NodeColor) => {
+        onUpdate?.(idea.id, { color: newColor });
+    };
+
+    const handleDragEnd = useCallback(
+        (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+            const newX = Math.round(position.x + info.offset.x);
+            const newY = Math.round(position.y + info.offset.y);
+            setPosition({ x: newX, y: newY });
+            onUpdate?.(idea.id, { x: newX, y: newY });
+        },
+        [idea.id, onUpdate, position.x, position.y]
+    );
+
     return (
         <motion.div
-            drag
+            drag={!isConnecting}
             dragMomentum={false}
-            initial={{ x: idea.x, y: idea.y, opacity: 0, scale: 0.9 }}
-            animate={{ x: idea.x, y: idea.y, opacity: 1, scale: 1 }}
-            whileHover={{ scale: 1.02 }}
-            whileDrag={{ scale: 1.05, zIndex: 50 }}
-            style={{ position: 'absolute', left: 0, top: 0 }}
-            className="bg-[#1a153a]/80 backdrop-blur-md border border-purple-500/30 rounded-xl p-4 shadow-[0_0_15px_rgba(168,85,247,0.15)] hover:shadow-[0_0_25px_rgba(168,85,247,0.4)] transition-shadow w-72 cursor-grab active:cursor-grabbing group"
+            onDragEnd={handleDragEnd}
+            initial={{ x: position.x, y: position.y, opacity: 0, scale: 0.9 }}
+            animate={{ 
+                opacity: dimmed ? 0.35 : 1,
+                scale: highlighted ? 1.05 : 1,
+                boxShadow: highlighted ? `0 0 35px ${colorStyle.dot}40` : undefined,
+                zIndex: isConnecting || highlighted ? 50 : 10
+            }}
+            whileHover={{ scale: isConnecting ? 1 : 1.02 }}
+            style={{ position: 'absolute', left: 0, top: 0, x: position.x, y: position.y }}
+            className={`bg-card/90 backdrop-blur-md rounded-xl p-4 transition-all duration-300 w-72 cursor-grab active:cursor-grabbing group border-2
+                ${isValidTarget ? 'border-secondary !opacity-100 shadow-[0_0_30px_hsl(var(--secondary)/0.4)]' : colorStyle.border}
+                ${highlighted ? `!border-foreground/40 ${colorStyle.glow}` : colorStyle.glow}
+                ${dimmed ? 'grayscale-[0.3]' : ''}
+                surface-elevated
+            `}
         >
-            <div className="flex justify-between items-start mb-2">
+            {/* Connection Handles */}
+            <ConnectionHandle nodeId={idea.id} side="left" onConnectionStart={onConnectionStart} onConnectionEnd={onConnectionEnd} isConnecting={isConnecting} isValidTarget={isValidTarget} />
+            <ConnectionHandle nodeId={idea.id} side="right" onConnectionStart={onConnectionStart} onConnectionEnd={onConnectionEnd} isConnecting={isConnecting} isValidTarget={isValidTarget} />
+            <ConnectionHandle nodeId={idea.id} side="top" onConnectionStart={onConnectionStart} onConnectionEnd={onConnectionEnd} isConnecting={isConnecting} isValidTarget={isValidTarget} />
+            <ConnectionHandle nodeId={idea.id} side="bottom" onConnectionStart={onConnectionStart} onConnectionEnd={onConnectionEnd} isConnecting={isConnecting} isValidTarget={isValidTarget} />
+
+            <div className="flex justify-between items-center mb-2 gap-2">
                 <input
                     type="text"
                     value={title}
                     onChange={handleTitleChange}
-                    className="bg-transparent border-none outline-none text-purple-100 font-semibold w-full"
+                    className="bg-transparent border-none outline-none text-foreground font-bold w-full text-lg"
                     placeholder="Idea title..."
                 />
-                <Sparkles className="w-4 h-4 text-purple-400 opacity-50 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                <div className="flex items-center gap-2">
+                    <ColorPicker currentColor={idea.color || 'blue'} onChange={handleColorChange} />
+                    <Sparkles className={`w-3.5 h-3.5 ${colorStyle.text} opacity-50 group-hover:opacity-100 transition-opacity`} />
+                </div>
             </div>
+            
             <textarea
                 value={content}
                 onChange={handleContentChange}
-                className="w-full bg-transparent border-none outline-none text-gray-300 text-sm resize-none h-20"
+                className="w-full bg-transparent border-none outline-none text-foreground/70 text-sm resize-none h-20 leading-relaxed font-normal"
                 placeholder="Describe your idea..."
             />
+
             <div className="flex gap-2 mt-3 flex-wrap">
                 {idea.tags.map(tag => (
-                    <span key={tag} className="flex items-center text-xs bg-purple-900/40 text-purple-200 px-2 py-1 rounded-md">
-                        <Tag className="w-3 h-3 mr-1" />
+                    <span key={tag} className={`flex items-center text-[10px] font-semibold tracking-wider uppercase ${colorStyle.tagBg} ${colorStyle.text} px-2 py-0.5 rounded-md border border-white/5`}>
+                        <Tag className="w-2.5 h-2.5 mr-1" />
                         {tag}
                     </span>
                 ))}
             </div>
         </motion.div>
     );
-}
+});
