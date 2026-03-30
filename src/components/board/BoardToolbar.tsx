@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const API_BASE = 'http://localhost:5000/api';
 
-export function BoardToolbar({ onAddIdea }: { onAddIdea?: () => void }) {
+export function BoardToolbar({ onAddIdea, onClearBoard, onSummaryClick }: { onAddIdea?: () => void, onClearBoard?: () => void, onSummaryClick?: () => void }) {
     const [user, setUser] = useState<any>(null);
     const [projectName, setProjectName] = useState('Brainstack Architect');
     const navigate = useNavigate();
@@ -130,12 +130,12 @@ export function BoardToolbar({ onAddIdea }: { onAddIdea?: () => void }) {
                         <span className="hidden md:block">Auto Connect</span>
                     </button>
 
-                    <button className="flex items-center gap-2 px-4 py-2 hover:bg-indigo-500/15 rounded-full text-indigo-200 transition-colors text-sm font-medium">
+                    <button onClick={onSummaryClick} className="flex items-center gap-2 px-4 py-2 hover:bg-indigo-500/15 rounded-full text-indigo-200 transition-colors text-sm font-medium">
                         <LayoutGrid className="w-4 h-4" />
                         <span className="hidden md:block">Summary</span>
                     </button>
 
-                    <button className="flex items-center gap-2 px-4 py-2 hover:bg-red-500/15 rounded-full text-red-300 transition-colors text-sm font-medium group">
+                    <button onClick={onClearBoard} className="flex items-center gap-2 px-4 py-2 hover:bg-red-500/15 rounded-full text-red-300 transition-colors text-sm font-medium group">
                         <Trash2 className="w-4 h-4 group-hover:text-red-400" />
                         <span className="hidden md:block">Clear</span>
                     </button>

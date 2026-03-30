@@ -19,6 +19,7 @@ interface BoardCanvasProps {
     onUpdateIdea?: (id: string, updates: Partial<Idea>) => void;
     onCreateEdge?: (source: string, target: string, type: EdgeType) => void;
     onDeleteEdge?: (edgeId: string) => void;
+    onDeleteIdea?: (id: string) => void;
 }
 
 const CARD_WIDTH = 288;
@@ -34,6 +35,7 @@ export function BoardCanvas({
     onUpdateIdea,
     onCreateEdge,
     onDeleteEdge,
+    onDeleteIdea,
 }: BoardCanvasProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const containerRectRef = useRef<DOMRect | null>(null);
@@ -222,10 +224,16 @@ export function BoardCanvas({
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') { setIsConnecting(false); setPendingConnection(null); }
+            if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeIds.size > 0 && onDeleteIdea) {
+                // Ignore if editing text
+                if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+                selectedNodeIds.forEach(id => onDeleteIdea(id));
+                setSelectedNodeIds(new Set());
+            }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
+    }, [selectedNodeIds, onDeleteIdea]);
 
     useEffect(() => {
         if (!isConnecting) return;
@@ -297,18 +305,18 @@ export function BoardCanvas({
             <EdgeTypeSelector visible={!!pendingConnection} position={selectorPos} onSelect={(type) => { if (pendingConnection) onCreateEdge?.(pendingConnection.source, pendingConnection.target, type); setPendingConnection(null); }} onCancel={() => setPendingConnection(null)} />
 
             {/* Controls */}
-            <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-2">
-                <div className="bg-card/80 backdrop-blur-xl border border-border rounded-2xl p-1 shadow-2xl flex flex-col items-center">
-                    <button onClick={() => !isLocked && handleZoom(0.15, window.innerWidth / 2, window.innerHeight / 2)} className={`p-2.5 rounded-xl transition-colors ${isLocked ? 'text-muted-foreground/20 cursor-not-allowed' : 'hover:bg-primary/10 text-muted-foreground hover:text-primary'}`}><Plus className="w-5 h-5" /></button>
-                    <div className="h-px w-6 bg-border/50" />
-                    <span className="text-[10px] font-bold text-primary/60 py-1">{Math.round(viewTransform.zoom * 100)}%</span>
-                    <div className="h-px w-6 bg-border/50" />
-                    <button onClick={() => !isLocked && handleZoom(-0.15, window.innerWidth / 2, window.innerHeight / 2)} className={`p-2.5 rounded-xl transition-colors ${isLocked ? 'text-muted-foreground/20 cursor-not-allowed' : 'hover:bg-primary/10 text-muted-foreground hover:text-primary'}`}><Minus className="w-5 h-5" /></button>
-                </div>
+            <div className="fixed bottom-[112px] right-8 z-30 flex flex-col gap-2">
+                <button onClick={resetView} className="bg-card/80 backdrop-blur-xl border border-border rounded-xl p-3 shadow-2xl text-muted-foreground hover:text-primary transition-colors flex items-center justify-center" title="Reset View"><Maximize className="w-5 h-5" /></button>
                 <button onClick={() => setIsLocked(!isLocked)} className={`bg-card/80 backdrop-blur-xl border border-border rounded-xl p-3 shadow-2xl transition-all flex items-center justify-center ${isLocked ? 'text-primary border-primary/50' : 'text-muted-foreground hover:text-primary'}`} title={isLocked ? "Unlock Canvas" : "Lock Canvas"}>
                     {isLocked ? <Lock className="w-5 h-5" /> : <Unlock className="w-5 h-5" />}
                 </button>
-                <button onClick={resetView} className="bg-card/80 backdrop-blur-xl border border-border rounded-xl p-3 shadow-2xl text-muted-foreground hover:text-primary transition-colors flex items-center justify-center" title="Reset View"><Maximize className="w-5 h-5" /></button>
+                <div className="bg-card/80 backdrop-blur-xl border border-border rounded-2xl p-1 shadow-2xl flex flex-col items-center">
+                    <button onClick={() => !isLocked && handleZoom(-0.15, window.innerWidth / 2, window.innerHeight / 2)} className={`p-2.5 rounded-xl transition-colors ${isLocked ? 'text-muted-foreground/20 cursor-not-allowed' : 'hover:bg-primary/10 text-muted-foreground hover:text-primary'}`} title="Zoom Out"><Minus className="w-5 h-5" /></button>
+                    <div className="h-px w-6 bg-border/50" />
+                    <span className="text-[10px] font-bold text-primary/60 py-1">{Math.round(viewTransform.zoom * 100)}%</span>
+                    <div className="h-px w-6 bg-border/50" />
+                    <button onClick={() => !isLocked && handleZoom(0.15, window.innerWidth / 2, window.innerHeight / 2)} className={`p-2.5 rounded-xl transition-colors ${isLocked ? 'text-muted-foreground/20 cursor-not-allowed' : 'hover:bg-primary/10 text-muted-foreground hover:text-primary'}`} title="Zoom In"><Plus className="w-5 h-5" /></button>
+                </div>
             </div>
 
             {/* Infinite Board Layer */}
@@ -336,7 +344,7 @@ export function BoardCanvas({
                     <div className="relative w-full h-full z-10 p-20">
                         {ideas.map((idea) => {
                             const hv = hoveredNodeId === idea.id, cn = connectedNodeIds.has(idea.id), sl = selectedNodeIds.has(idea.id);
-                            return <div key={idea.id} onMouseEnter={() => setHoveredNodeId(idea.id)} onMouseLeave={() => setHoveredNodeId(null)} onClick={(e) => { e.stopPropagation(); handleNodeClick(idea.id, e.shiftKey); }} className={`${sl ? 'z-[60]' : ''}`}><IdeaCard idea={idea} onUpdate={onUpdateIdea} onConnectionStart={handleConnectionStart} onConnectionEnd={handleConnectionEnd} isConnecting={isConnecting} connectingFromId={connectingFromId} highlighted={hv || cn || sl} dimmed={!!(hoveredNodeId && !hv && !cn) && !sl} /></div>;
+                            return <div key={idea.id} onMouseEnter={() => setHoveredNodeId(idea.id)} onMouseLeave={() => setHoveredNodeId(null)} onClick={(e) => { e.stopPropagation(); handleNodeClick(idea.id, e.shiftKey); }} className={`${sl ? 'z-[60]' : ''}`}><IdeaCard idea={idea} onUpdate={onUpdateIdea} onDelete={onDeleteIdea} onConnectionStart={handleConnectionStart} onConnectionEnd={handleConnectionEnd} isConnecting={isConnecting} connectingFromId={connectingFromId} highlighted={hv || cn || sl} dimmed={!!(hoveredNodeId && !hv && !cn) && !sl} /></div>;
                         })}
                     </div>
                 </div>

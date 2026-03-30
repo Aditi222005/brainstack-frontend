@@ -16,6 +16,9 @@ export function AIVisualBoard() {
     const [isInsightPanelOpen, setIsInsightPanelOpen] = useState(false);
     const [loading, setLoading] = useState(true);
 
+    const [insights, setInsights] = useState<any>(null);
+    const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+
     // Fetch ideas and edges from backend on mount
     useEffect(() => {
         const fetchData = async () => {
@@ -59,14 +62,14 @@ export function AIVisualBoard() {
         fetchData();
     }, []);
 
-    const handleAddIdea = async () => {
+    const handleAddIdea = async (initialData?: Partial<Idea>) => {
         const newIdea = {
-            title: 'New Idea',
-            content: 'Describe something new...',
-            tags: ['#New'],
-            color: 'blue',
-            x: Math.round(window.innerWidth / 2 - 100 + (Math.random() * 80 - 40)),
-            y: Math.round(window.innerHeight / 2 - 50 + (Math.random() * 80 - 40)),
+            title: initialData?.title || 'New Idea',
+            content: initialData?.content || 'Describe something new...',
+            tags: initialData?.tags || ['#New'],
+            color: initialData?.color || 'blue',
+            x: initialData?.x ?? Math.round(window.innerWidth / 2 - 100 + (Math.random() * 800 - 400)),
+            y: initialData?.y ?? Math.round(window.innerHeight / 2 - 50 + (Math.random() * 800 - 400)),
         };
 
         try {
@@ -88,10 +91,12 @@ export function AIVisualBoard() {
                     y: data.data.y,
                 };
                 setIdeas(prev => [...prev, created]);
+                return created;
             }
         } catch (error) {
             console.error('[AIVisualBoard] Failed to create idea:', error);
         }
+        return null;
     };
 
     const handleUpdateIdea = useCallback(async (id: string, updates: Partial<Idea>) => {
@@ -115,17 +120,68 @@ export function AIVisualBoard() {
         }
     }, []);
 
-    const handleDeleteIdea = async (id: string) => {
+    const handleDeleteIdea = useCallback(async (id: string) => {
+        // Optimistic UI update
+        const removedIdea = ideas.find(i => i.id === id);
+        const removedEdges = edges.filter(e => e.source === id || e.target === id);
+        
+        setIdeas(prev => prev.filter(idea => idea.id !== id));
+        setEdges(prev => prev.filter(edge => edge.source !== id && edge.target !== id));
+
         try {
             const res = await fetch(`${API_BASE}/ideas/${id}`, { method: 'DELETE', credentials: 'include' });
             const data = await res.json();
-            if (data.success) {
-                setIdeas(prev => prev.filter(idea => idea.id !== id));
-                setEdges(prev => prev.filter(edge => edge.source !== id && edge.target !== id));
-                fetch(`${API_BASE}/edges/by-node/${id}`, { method: 'DELETE', credentials: 'include' });
+            if (!data.success) {
+                // Rollback if failed
+                if (removedIdea) setIdeas(prev => [...prev, removedIdea]);
+                if (removedEdges.length) setEdges(prev => [...prev, ...removedEdges]);
             }
+            // backend now also deletes related edges, but we keep the redundant API call just in case or remove it.
         } catch (error) {
             console.error('[AIVisualBoard] Failed to delete idea:', error);
+            if (removedIdea) setIdeas(prev => [...prev, removedIdea]);
+            if (removedEdges.length) setEdges(prev => [...prev, ...removedEdges]);
+        }
+    }, [ideas, edges]);
+
+    const handleClearBoard = useCallback(async () => {
+        if (!window.confirm("Clear entire board? This cannot be undone.")) return;
+
+        setIdeas([]);
+        setEdges([]);
+        setInsights(null);
+
+        try {
+            const res = await fetch(`${API_BASE}/boards/default/clear`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (!data.success) {
+                console.error('[AIVisualBoard] Failed to clear board on backend');
+            }
+        } catch (error) {
+            console.error('[AIVisualBoard] Clear board error:', error);
+        }
+    }, []);
+
+    const handleSummaryClick = async () => {
+        setIsInsightPanelOpen(true);
+
+        setIsGeneratingSummary(true);
+        try {
+            const res = await fetch(`${API_BASE}/ai/summary`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ boardId: 'default' })
+            });
+            const data = await res.json();
+            setInsights(data);
+        } catch (error) {
+            console.error('Failed to generate summary', error);
+        } finally {
+            setIsGeneratingSummary(false);
         }
     };
 
@@ -170,6 +226,17 @@ export function AIVisualBoard() {
         }
     }, [edges]);
 
+    const handleAddConnection = useCallback(async (sourceTitle: string, targetTitle: string, type: EdgeType) => {
+        const source = ideas.find(i => i.title.toLowerCase() === sourceTitle.toLowerCase());
+        const target = ideas.find(i => i.title.toLowerCase() === targetTitle.toLowerCase());
+
+        if (source && target) {
+            handleCreateEdge(source.id, target.id, type);
+        } else {
+            console.warn(`[AIVisualBoard] Could not find nodes for connection: ${sourceTitle} → ${targetTitle}`);
+        }
+    }, [ideas, handleCreateEdge]);
+
     return (
         <div className="relative w-full h-full overflow-hidden bg-[#0B0F19] text-[#E5E7EB] selection:bg-indigo-500/30 font-sans">
             {loading ? (
@@ -179,17 +246,22 @@ export function AIVisualBoard() {
             ) : (
                 <>
                     <LegendPanel />
-                    <BoardToolbar onAddIdea={handleAddIdea} />
+                    <BoardToolbar onAddIdea={handleAddIdea} onClearBoard={handleClearBoard} onSummaryClick={handleSummaryClick} />
                     <BoardCanvas
                         ideas={ideas}
                         edges={edges}
                         onUpdateIdea={handleUpdateIdea}
                         onCreateEdge={handleCreateEdge}
                         onDeleteEdge={handleDeleteEdge}
+                        onDeleteIdea={handleDeleteIdea}
                     />
                     <RightInsightPanel
                         isOpen={isInsightPanelOpen}
                         togglePanel={() => setIsInsightPanelOpen(!isInsightPanelOpen)}
+                        insights={insights}
+                        isLoading={isGeneratingSummary}
+                        onAddIdea={handleAddIdea}
+                        onAddConnection={handleAddConnection}
                     />
                     <FloatingActions onAddIdea={handleAddIdea} />
                 </>

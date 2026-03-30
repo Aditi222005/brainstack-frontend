@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, memo } from 'react';
 import { motion, PanInfo } from 'framer-motion';
-import { Tag, Sparkles } from 'lucide-react';
+import { Tag, Sparkles, Trash2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { ConnectionHandle } from './ConnectionHandle';
 import { NodeColor, NODE_COLORS } from './boardTheme';
 import { ColorPicker } from './ColorPicker';
@@ -24,6 +25,7 @@ interface IdeaCardProps {
     connectingFromId?: string | null;
     dimmed?: boolean;
     highlighted?: boolean;
+    onDelete?: (id: string) => void;
 }
 
 export const IdeaCard = memo(function IdeaCard({
@@ -35,9 +37,11 @@ export const IdeaCard = memo(function IdeaCard({
     connectingFromId = null,
     dimmed = false,
     highlighted = false,
+    onDelete,
 }: IdeaCardProps) {
     const [title, setTitle] = useState(idea.title);
     const [content, setContent] = useState(idea.content);
+    const [isEditingContent, setIsEditingContent] = useState(false);
     const [position, setPosition] = useState({ x: idea.x, y: idea.y });
     const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -130,15 +134,39 @@ export const IdeaCard = memo(function IdeaCard({
                 <div className="flex items-center gap-2">
                     <ColorPicker currentColor={idea.color || 'blue'} onChange={handleColorChange} />
                     <Sparkles className={`w-3.5 h-3.5 ${colorStyle.text} opacity-50 group-hover:opacity-100 transition-opacity`} />
+                    {onDelete && (
+                        <button
+                            title="Delete Idea"
+                            onClick={(e) => { e.stopPropagation(); onDelete(idea.id); }}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-red-500/70 hover:text-red-400 rounded-md hover:bg-black/20"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
             </div>
             
-            <textarea
-                value={content}
-                onChange={handleContentChange}
-                className="w-full bg-transparent border-none outline-none text-foreground/70 text-sm resize-none h-20 leading-relaxed font-normal"
-                placeholder="Describe your idea..."
-            />
+            {isEditingContent ? (
+                <textarea
+                    autoFocus
+                    value={content}
+                    onChange={handleContentChange}
+                    onBlur={() => setIsEditingContent(false)}
+                    className="w-full bg-transparent border-none outline-none text-foreground/70 text-sm resize-none min-h-[5rem] leading-relaxed font-normal"
+                    placeholder="Describe your idea..."
+                />
+            ) : (
+                <div 
+                    onClick={() => setIsEditingContent(true)}
+                    className="w-full min-h-[5rem] cursor-text bg-white/5 p-4 rounded-xl border border-white/10 backdrop-blur"
+                >
+                    <div className="prose prose-invert prose-sm max-w-none leading-relaxed prose-headings:text-blue-400 prose-strong:text-purple-400 prose-li:marker:text-blue-400">
+                        <ReactMarkdown>
+                            {content || "Describe your idea..."}
+                        </ReactMarkdown>
+                    </div>
+                </div>
+            )}
 
             <div className="flex gap-2 mt-3 flex-wrap">
                 {idea.tags.map(tag => (

@@ -1,5 +1,5 @@
 // ─── Node Color System ───
-export type NodeColor = 'blue' | 'purple' | 'green' | 'yellow' | 'red';
+export type NodeColor = 'blue' | 'purple' | 'green' | 'yellow' | 'red' | 'orange' | 'pink';
 
 export interface NodeColorConfig {
     label: string;
@@ -56,6 +56,24 @@ export const NODE_COLORS: Record<NodeColor, NodeColorConfig> = {
         text: 'text-red-300',
         tagBg: 'bg-red-900/40',
         dot: '#EF4444',
+    },
+    orange: {
+        label: 'Example',
+        border: 'border-orange-500/30',
+        glow: 'shadow-[0_0_20px_rgba(249,115,22,0.25)]',
+        bg: 'bg-orange-500/10',
+        text: 'text-orange-300',
+        tagBg: 'bg-orange-900/40',
+        dot: '#F97316',
+    },
+    pink: {
+        label: 'Future',
+        border: 'border-pink-500/30',
+        glow: 'shadow-[0_0_20px_rgba(236,72,153,0.25)]',
+        bg: 'bg-pink-500/10',
+        text: 'text-pink-300',
+        tagBg: 'bg-pink-900/40',
+        dot: '#EC4899',
     },
 };
 
