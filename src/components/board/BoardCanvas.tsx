@@ -3,6 +3,7 @@ import { IdeaCard, Idea } from './IdeaCard';
 import { EdgeLine, DraftEdgeLine, EdgeData } from './EdgeLine';
 import { EdgeTypeSelector } from './EdgeTypeSelector';
 import { EdgeType, NodeColor, NODE_COLORS } from './boardTheme';
+import { suggestConnectionType } from './connectionSuggester';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Minus, Plus, Maximize, Lock, Unlock, MousePointer2 } from 'lucide-react';
 
@@ -70,6 +71,7 @@ export function BoardCanvas({
     const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [pendingConnection, setPendingConnection] = useState<{ source: string; target: string } | null>(null);
     const [selectorPos, setSelectorPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+    const [connectionSuggestion, setConnectionSuggestion] = useState<{ type: EdgeType; reason: string } | null>(null);
 
     const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
     const [selectedNodeIds, setSelectedNodeIds] = useState<Set<string>>(new Set());
@@ -99,6 +101,13 @@ export function BoardCanvas({
     const handleConnectionEnd = useCallback((id: string) => {
         connectionHandledRef.current = true;
         if (connectingFromId && connectingFromId !== id) {
+            const sourceIdea = ideasRef.current.find(i => i.id === connectingFromId);
+            const targetIdea = ideasRef.current.find(i => i.id === id);
+            if (sourceIdea && targetIdea) {
+                setConnectionSuggestion(suggestConnectionType(sourceIdea, targetIdea));
+            } else {
+                setConnectionSuggestion(null);
+            }
             setPendingConnection({ source: connectingFromId, target: id });
             setSelectorPos({ x: mousePosRef.current.x, y: mousePosRef.current.y });
         }
@@ -302,7 +311,20 @@ export function BoardCanvas({
                 )}
             </AnimatePresence>
 
-            <EdgeTypeSelector visible={!!pendingConnection} position={selectorPos} onSelect={(type) => { if (pendingConnection) onCreateEdge?.(pendingConnection.source, pendingConnection.target, type); setPendingConnection(null); }} onCancel={() => setPendingConnection(null)} />
+            <EdgeTypeSelector
+                visible={!!pendingConnection}
+                position={selectorPos}
+                suggestion={connectionSuggestion}
+                onSelect={(type) => {
+                    if (pendingConnection) onCreateEdge?.(pendingConnection.source, pendingConnection.target, type);
+                    setPendingConnection(null);
+                    setConnectionSuggestion(null);
+                }}
+                onCancel={() => {
+                    setPendingConnection(null);
+                    setConnectionSuggestion(null);
+                }}
+            />
 
             {/* Controls */}
             <div className="fixed bottom-[112px] right-8 z-30 flex flex-col gap-2">

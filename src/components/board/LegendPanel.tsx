@@ -30,27 +30,37 @@ export function LegendPanel() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -8, scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                        className="absolute right-0 top-12 bg-[#111827]/90 backdrop-blur-xl border border-indigo-500/15 rounded-xl p-4 shadow-[0_8px_40px_rgba(0,0,0,0.5)] w-56"
+                        className="absolute right-0 top-12 bg-[#111827]/90 backdrop-blur-xl border border-indigo-500/15 rounded-xl p-4 shadow-[0_8px_40px_rgba(0,0,0,0.5)] w-64"
                     >
                         {/* Connection Types */}
                         <div className="text-[9px] uppercase tracking-widest text-[#E5E7EB]/25 font-semibold mb-2">
                             Connections
                         </div>
-                        <div className="flex flex-col gap-1.5 mb-4">
+                        <div className="flex flex-col gap-2 mb-4">
                             {EDGE_TYPE_LIST.map((type) => {
                                 const config = EDGE_TYPES[type];
                                 return (
-                                    <div key={type} className="flex items-center gap-2.5">
-                                        <svg width="24" height="4" className="flex-shrink-0">
-                                            <line
-                                                x1="0" y1="2" x2="24" y2="2"
-                                                stroke={config.color}
-                                                strokeWidth={2}
-                                                strokeDasharray={config.dashArray === '0' ? 'none' : config.dashArray}
-                                                strokeLinecap="round"
-                                            />
-                                        </svg>
-                                        <span className="text-[11px] text-[#E5E7EB]/60">{config.icon} {config.label}</span>
+                                    <div key={type} className="flex items-start gap-2.5">
+                                        <div className="flex flex-col items-center gap-0.5 mt-0.5 flex-shrink-0">
+                                            <span className="text-sm leading-none">{config.icon}</span>
+                                            <svg width="2" height="10" className="mt-0.5">
+                                                <line
+                                                    x1="1" y1="0" x2="1" y2="10"
+                                                    stroke={config.color}
+                                                    strokeWidth={2}
+                                                    strokeDasharray={config.dashArray === '0' ? 'none' : config.dashArray}
+                                                    strokeLinecap="round"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div className="text-[11px] font-semibold" style={{ color: config.color }}>
+                                                {config.label}
+                                            </div>
+                                            <div className="text-[10px] text-[#E5E7EB]/35 leading-snug">
+                                                {config.description}
+                                            </div>
+                                        </div>
                                     </div>
                                 );
                             })}

@@ -82,6 +82,8 @@ export type EdgeType = 'relates_to' | 'depends_on' | 'contradicts' | 'inspired_b
 
 export interface EdgeTypeConfig {
     label: string;
+    description: string;
+    example: string;
     color: string;
     strokeColor: string;
     glowColor: string;
@@ -92,6 +94,8 @@ export interface EdgeTypeConfig {
 export const EDGE_TYPES: Record<EdgeType, EdgeTypeConfig> = {
     relates_to: {
         label: 'Relates To',
+        description: 'These two ideas share a topic or theme.',
+        example: 'e.g. "Photosynthesis" relates to "Sunlight"',
         color: '#6366F1',
         strokeColor: 'rgba(99, 102, 241, 0.5)',
         glowColor: 'rgba(99, 102, 241, 0.15)',
@@ -99,7 +103,9 @@ export const EDGE_TYPES: Record<EdgeType, EdgeTypeConfig> = {
         icon: '🔗',
     },
     depends_on: {
-        label: 'Depends On',
+        label: 'Needs First',
+        description: 'You must understand the first idea before this one.',
+        example: 'e.g. "Algebra" needs "Basic Math" first',
         color: '#F59E0B',
         strokeColor: 'rgba(245, 158, 11, 0.7)',
         glowColor: 'rgba(245, 158, 11, 0.15)',
@@ -107,7 +113,9 @@ export const EDGE_TYPES: Record<EdgeType, EdgeTypeConfig> = {
         icon: '⚡',
     },
     contradicts: {
-        label: 'Contradicts',
+        label: 'Disagrees With',
+        description: 'These ideas have opposing views or conflict.',
+        example: 'e.g. "Evolution" disagrees with "Creationism"',
         color: '#EF4444',
         strokeColor: 'rgba(239, 68, 68, 0.6)',
         glowColor: 'rgba(239, 68, 68, 0.15)',
@@ -116,6 +124,8 @@ export const EDGE_TYPES: Record<EdgeType, EdgeTypeConfig> = {
     },
     inspired_by: {
         label: 'Inspired By',
+        description: 'This idea came to life because of the other.',
+        example: 'e.g. "Gravity" was inspired by "Falling Apple"',
         color: '#A855F7',
         strokeColor: 'rgba(168, 85, 247, 0.6)',
         glowColor: 'rgba(168, 85, 247, 0.2)',

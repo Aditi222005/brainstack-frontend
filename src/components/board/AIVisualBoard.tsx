@@ -18,6 +18,12 @@ export function AIVisualBoard() {
 
     const [insights, setInsights] = useState<any>(null);
     const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+    const [autoConnectStatus, setAutoConnectStatus] = useState<{
+        state: 'idle' | 'loading' | 'done' | 'error';
+        message?: string;
+        created?: number;
+        skipped?: number;
+    }>({ state: 'idle' });
 
     // Fetch ideas and edges from backend on mount
     useEffect(() => {
@@ -237,6 +243,60 @@ export function AIVisualBoard() {
         }
     }, [ideas, handleCreateEdge]);
 
+    const handleAutoConnect = useCallback(async () => {
+        if (ideas.length < 2) {
+            setAutoConnectStatus({ state: 'done', message: 'Add at least 2 idea cards first!', created: 0, skipped: 0 });
+            setTimeout(() => setAutoConnectStatus({ state: 'idle' }), 3000);
+            return;
+        }
+
+        setAutoConnectStatus({ state: 'loading' });
+
+        try {
+            const res = await fetch(`${API_BASE}/edges/auto-connect`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+            });
+            const data = await res.json();
+
+            if (data.success && data.edges && data.edges.length > 0) {
+                // Merge new edges into state without a full re-fetch
+                const newEdges: EdgeData[] = data.edges.map((e: any) => ({
+                    id: e.id,
+                    source: e.source,
+                    target: e.target,
+                    type: e.type || 'relates_to',
+                }));
+
+                setEdges(prev => {
+                    const existingIds = new Set(prev.map(e => e.id));
+                    const deduplicated = newEdges.filter(e => !existingIds.has(e.id));
+                    return [...prev, ...deduplicated];
+                });
+
+                setAutoConnectStatus({
+                    state: 'done',
+                    message: data.message,
+                    created: data.created,
+                    skipped: data.skipped,
+                });
+            } else {
+                setAutoConnectStatus({
+                    state: 'done',
+                    message: data.message || 'No new connections found.',
+                    created: 0,
+                    skipped: data.skipped || 0,
+                });
+            }
+        } catch (error) {
+            console.error('[AIVisualBoard] Auto-connect failed:', error);
+            setAutoConnectStatus({ state: 'error', message: 'Failed to connect. Try again.' });
+        } finally {
+            setTimeout(() => setAutoConnectStatus({ state: 'idle' }), 4500);
+        }
+    }, [ideas]);
+
     return (
         <div className="relative w-full h-full overflow-hidden bg-[#0B0F19] text-[#E5E7EB] selection:bg-indigo-500/30 font-sans">
             {loading ? (
@@ -246,7 +306,13 @@ export function AIVisualBoard() {
             ) : (
                 <>
                     <LegendPanel />
-                    <BoardToolbar onAddIdea={handleAddIdea} onClearBoard={handleClearBoard} onSummaryClick={handleSummaryClick} />
+                    <BoardToolbar
+                        onAddIdea={handleAddIdea}
+                        onClearBoard={handleClearBoard}
+                        onSummaryClick={handleSummaryClick}
+                        onAutoConnect={handleAutoConnect}
+                        autoConnectStatus={autoConnectStatus}
+                    />
                     <BoardCanvas
                         ideas={ideas}
                         edges={edges}

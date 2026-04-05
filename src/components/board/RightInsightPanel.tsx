@@ -67,21 +67,29 @@ export function RightInsightPanel({ isOpen, togglePanel, insights, isLoading, on
                                     <SparklesIcon className="w-3.5 h-3.5" />
                                     Cognitive Summary
                                 </h3>
-                                <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/5 rounded-2xl p-5 border border-indigo-500/20 shadow-xl whitespace-pre-line leading-relaxed text-xs text-[#E5E7EB]/80">
-                                    {insights.summary.split('\n').map((line, i) => (
-                                        <div key={i} className="mb-2 last:mb-0">
-                                            {line.trim().startsWith('•') ? (
-                                                <div className="flex gap-2">
-                                                    <span className="text-indigo-400">•</span>
-                                                    <span>{line.replace('•', '').trim()}</span>
-                                                </div>
-                                            ) : (
-                                                line
-                                            )}
-                                        </div>
-                                    ))}
+                                <div className="space-y-2">
+                                    {/* Normalise: split on newlines first, then on inline • separators */}
+                                    {insights.summary
+                                        .split('\n')
+                                        .flatMap(line => line.split('•'))
+                                        .map(s => s.trim())
+                                        .filter(Boolean)
+                                        .map((point, i) => (
+                                            <div
+                                                key={i}
+                                                className="flex items-start gap-3 bg-gradient-to-r from-indigo-500/10 to-purple-500/5 rounded-xl px-4 py-3 border border-indigo-500/15 shadow-sm"
+                                                style={{ animationDelay: `${i * 60}ms` }}
+                                            >
+                                                {/* Glowing bullet dot */}
+                                                <span className="mt-[5px] flex-shrink-0 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-indigo-400 to-cyan-400 shadow-[0_0_6px_rgba(99,102,241,0.8)]" />
+                                                <p className="text-xs text-[#E5E7EB]/80 leading-relaxed">
+                                                    {point}
+                                                </p>
+                                            </div>
+                                        ))}
                                 </div>
                             </section>
+
 
                             {/* How to Explore Section */}
                             {insights.howToUseBoard && insights.howToUseBoard.length > 0 && (
