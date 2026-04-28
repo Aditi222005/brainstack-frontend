@@ -8,7 +8,7 @@ import LandingFooter from "@/components/landing/LandingFooter";
 
 const Index = () => {
   return (
-    <div className="bg-background min-h-screen font-sans antialiased text-foreground selection:bg-primary/30">
+    <div style={{ background: "var(--color-bg)", minHeight: "100vh", color: "var(--color-text)" }}>
       <LandingNavbar />
       <LandingHero />
       <LandingFeatures />

@@ -1,425 +1,363 @@
-import {
-    motion,
-    useMotionValue,
-    useSpring,
-    useTransform,
-    MotionValue
-} from "framer-motion";
-import { ArrowRight, Sparkles, Wand2, LayoutDashboard } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
-
-const easeOutQuint = [0.22, 1, 0.36, 1] as const;
-
-
-/* ---------------- PARTICLES ---------------- */
-
-const FloatingParticles = () => {
-    const particles = new Array(20).fill(0);
-
-    return (
-        <div className="absolute inset-0 pointer-events-none">
-            {particles.map((_, i) => (
-                <motion.div
-                    key={i}
-                    initial={{
-                        y: Math.random() * 800,
-                        x: Math.random() * 1200,
-                        opacity: 0
-                    }}
-                    animate={{
-                        y: [null, Math.random() * -200],
-                        opacity: [0, 0.8, 0]
-                    }}
-                    transition={{
-                        duration: 6 + Math.random() * 6,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                    }}
-                    className="absolute w-1.5 h-1.5 rounded-full bg-primary blur-[1px]"
-                />
-            ))}
-        </div>
-    );
-};
-
-
-/* ---------------- GRID BACKGROUND ---------------- */
-
-const AnimatedGrid = () => {
-    return (
-        <div className="absolute inset-0 opacity-[0.04] pointer-events-none">
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--primary))/0.1_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--primary))/0.1_1px,transparent_1px)] bg-[size:40px_40px]" />
-
-            <motion.div
-                animate={{ opacity: [0.05, 0.15, 0.05] }}
-                transition={{ duration: 6, repeat: Infinity }}
-                className="absolute inset-0"
-            />
-        </div>
-    );
-};
-
-
-/* ---------------- FLOATING FEATURES ---------------- */
-
-const FloatingFeature = ({ text, className }: any) => {
-    return (
-        <motion.div
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: [0, -15, 0], opacity: 1 }}
-            transition={{
-                duration: 8,
-                repeat: Infinity,
-                ease: "easeInOut"
-            }}
-            className={`absolute px-5 py-3 rounded-xl bg-card/60 border border-border backdrop-blur-md text-foreground/80 text-sm shadow-xl ${className}`}
-        >
-            {text}
-        </motion.div>
-    );
-};
-
-
-/* ---------------- KNOWLEDGE NODES ---------------- */
-
-const KnowledgeNode = ({ x, y }: any) => {
-    return (
-        <motion.div
-            style={{ left: x, top: y }}
-            animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.6, 1, 0.6]
-            }}
-            transition={{
-                duration: 3,
-                repeat: Infinity
-            }}
-            className="absolute w-3 h-3 bg-primary rounded-full shadow-[0_0_12px_hsl(var(--primary))]"
-        />
-    );
-};
-
-
-/* ---------------- MAGNETIC BUTTON ---------------- */
-
-const MagneticButton = ({ children, className, ...props }: any) => {
-    const ref = useRef<HTMLAnchorElement>(null);
-
-    const x = useMotionValue(0);
-    const y = useMotionValue(0);
-
-    const xSpring = useSpring(x, { stiffness: 150, damping: 15 });
-    const ySpring = useSpring(y, { stiffness: 150, damping: 15 });
-
-    const handleMouse = (e: React.MouseEvent<HTMLAnchorElement>) => {
-        if (!ref.current) return;
-
-        const { clientX, clientY } = e;
-
-        const { height, width, left, top } =
-            ref.current.getBoundingClientRect();
-
-        const middleX = clientX - (left + width / 2);
-        const middleY = clientY - (top + height / 2);
-
-        x.set(middleX * 0.2);
-        y.set(middleY * 0.2);
-    };
-
-    const reset = () => {
-        x.set(0);
-        y.set(0);
-    };
-
-    return (
-        <motion.div style={{ x: xSpring, y: ySpring }}>
-            <Link
-                ref={ref}
-                onMouseMove={handleMouse}
-                onMouseLeave={reset}
-                className={className}
-                {...props}
-            >
-                {children}
-            </Link>
-        </motion.div>
-    );
-};
-
-
-/* ---------------- HERO DASHBOARD ---------------- */
-
-interface DashboardProps {
-    mouseX: MotionValue<number>;
-    mouseY: MotionValue<number>;
-}
-
-const HeroDashboardPreview = ({ mouseX, mouseY }: DashboardProps) => {
-    const springX = useSpring(mouseX, { damping: 30, stiffness: 200 });
-    const springY = useSpring(mouseY, { damping: 30, stiffness: 200 });
-
-    const rotateX = useTransform(springY, [-0.5, 0.5], [15, -15]);
-    const rotateY = useTransform(springX, [-0.5, 0.5], [-15, 15]);
-
-    const [text, setText] = useState("");
-
-    const fullText =
-        "Summarize the cognitive science literature...";
-
-    useEffect(() => {
-        let i = 0;
-
-        const timer = setInterval(() => {
-            setText(fullText.slice(0, i));
-            i++;
-
-            if (i > fullText.length) clearInterval(timer);
-        }, 50);
-
-        return () => clearInterval(timer);
-    }, []);
-
-    return (
-        <motion.div
-            initial={{ y: 120, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 1.2 }}
-            className="relative z-10 mt-28 max-w-6xl mx-auto px-6 w-full"
-        >
-            <motion.div
-                style={{ rotateX, rotateY }}
-                className="rounded-xl border border-border bg-card/40 backdrop-blur-xl p-1 shadow-2xl shadow-primary/5"
-            >
-                <div className="rounded-lg overflow-hidden bg-background aspect-[16/10] flex flex-col">
-
-                    <div className="h-14 border-b border-border flex items-center px-6 justify-center">
-
-                        <div className="max-w-md w-full h-8 bg-primary/5 rounded-full border border-border flex items-center px-4">
-
-                            <Wand2 className="w-4 h-4 text-secondary mr-2" />
-
-                            <span className="text-sm text-foreground/50 font-mono">
-                                {text}
-                            </span>
-
-                        </div>
-                    </div>
-
-
-                    <div className="flex-1 p-10 relative">
-
-                        <motion.div
-                            animate={{ y: [0, -15, 0] }}
-                            transition={{ repeat: Infinity, duration: 6 }}
-                            className="absolute top-[30%] left-[20%] w-56 p-5 bg-primary/5 border border-primary/10 rounded-xl"
-                        >
-                            <div className="text-foreground text-sm mb-3">
-                                AI Research
-                            </div>
-
-                            <div className="w-full h-2 bg-primary/40 rounded mb-2" />
-
-                            <div className="w-3/4 h-2 bg-foreground/10 rounded" />
-                        </motion.div>
-
-
-                        <motion.div
-                            animate={{ y: [0, 15, 0] }}
-                            transition={{ repeat: Infinity, duration: 7 }}
-                            className="absolute bottom-[25%] right-[25%] w-60 p-5 bg-secondary/5 border border-secondary/10 rounded-xl"
-                        >
-                            <div className="text-foreground text-sm mb-3">
-                                Cognitive Models
-                            </div>
-
-                            <div className="w-full h-2 bg-secondary/40 rounded mb-2" />
-
-                            <div className="w-4/5 h-2 bg-foreground/10 rounded" />
-                        </motion.div>
-
-                    </div>
-                </div>
-            </motion.div>
-        </motion.div>
-    );
-};
-
-
-/* ---------------- MAIN HERO ---------------- */
+import { Link } from "react-router-dom";
+import { ArrowRight, Wand2, LayoutDashboard } from "lucide-react";
 
 const LandingHero = () => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [text, setText] = useState("");
+  const fullText = "Summarize the cognitive science literature...";
 
-    useEffect(() => {
-        setIsLoggedIn(!!localStorage.getItem("token"));
-    }, []);
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("token"));
+  }, []);
 
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
+  // Typewriter for dashboard preview
+  useEffect(() => {
+    let i = 0;
+    const timer = setInterval(() => {
+      setText(fullText.slice(0, i));
+      i++;
+      if (i > fullText.length) clearInterval(timer);
+    }, 55);
+    return () => clearInterval(timer);
+  }, []);
 
-    const handleMouse = (e: any) => {
-        if (!containerRef.current) return;
+  return (
+    <section
+      style={{
+        position: "relative",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+        paddingTop: 80,
+        paddingBottom: 80,
+      }}
+    >
+      {/* ── Background orbs ── */}
+      <div
+        className="orb"
+        style={{
+          width: "clamp(300px, 40vw, 600px)",
+          height: "clamp(300px, 40vw, 600px)",
+          background: "rgba(124,111,255,0.18)",
+          top: "-10%",
+          left: "-8%",
+          animationDelay: "0s",
+        }}
+      />
+      <div
+        className="orb"
+        style={{
+          width: "clamp(250px, 35vw, 500px)",
+          height: "clamp(250px, 35vw, 500px)",
+          background: "rgba(0,210,200,0.13)",
+          bottom: "-5%",
+          right: "-5%",
+          animationDelay: "4s",
+        }}
+      />
+      <div
+        className="orb"
+        style={{
+          width: "clamp(200px, 25vw, 350px)",
+          height: "clamp(200px, 25vw, 350px)",
+          background: "rgba(249,115,22,0.08)",
+          top: "40%",
+          left: "45%",
+          animationDelay: "8s",
+        }}
+      />
 
-        const rect = containerRef.current.getBoundingClientRect();
-
-        const x = (e.clientX - rect.left) / rect.width - 0.5;
-        const y = (e.clientY - rect.top) / rect.height - 0.5;
-
-        mouseX.set(x);
-        mouseY.set(y);
-    };
-
-    const reset = () => {
-        mouseX.set(0);
-        mouseY.set(0);
-    };
-
-    return (
-        <section
-            ref={containerRef}
-            onMouseMove={handleMouse}
-            onMouseLeave={reset}
-            className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-28 pb-32"
+      {/* ── Hero content ── */}
+      <div
+        style={{
+          position: "relative",
+          zIndex: 10,
+          maxWidth: 840,
+          width: "100%",
+          padding: "0 24px",
+          textAlign: "center",
+        }}
+      >
+        {/* Badge pill */}
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            background: "rgba(124,111,255,0.10)",
+            border: "1px solid var(--color-border-hover)",
+            borderRadius: 999,
+            padding: "6px 16px",
+            marginBottom: 28,
+          }}
         >
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: "var(--color-primary)",
+              display: "inline-block",
+              animation: "pulseDot 1.6s ease-in-out infinite",
+            }}
+          />
+          <span
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              fontWeight: 500,
+              color: "var(--color-primary)",
+            }}
+          >
+            Now available for all fields
+          </span>
+        </div>
 
-            <AnimatedGrid />
-            <FloatingParticles />
+        {/* H1 */}
+        <h1
+          style={{
+            fontFamily: "'Sora', sans-serif",
+            fontWeight: 800,
+            fontSize: "clamp(36px, 5.5vw, 60px)",
+            lineHeight: 1.12,
+            color: "var(--color-text)",
+            marginBottom: 20,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          Build Your{" "}
+          <span style={{ color: "var(--color-primary)" }}>Second Brain</span>
+          <br />
+          with{" "}
+          <span style={{ color: "var(--color-secondary)" }}>BrainStack</span>
+        </h1>
 
-            <KnowledgeNode x="30%" y="40%" />
-            <KnowledgeNode x="70%" y="50%" />
-            <KnowledgeNode x="55%" y="30%" />
+        {/* Subtext */}
+        <p
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 16,
+            fontWeight: 400,
+            color: "var(--color-muted)",
+            lineHeight: 1.65,
+            marginBottom: 40,
+            maxWidth: 540,
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
+        >
+          Capture ideas instantly, organize knowledge organically, and visualize
+          every connection in a deeply intelligent workspace.
+        </p>
 
-
-            <FloatingFeature
-                text="AI Auto Summaries"
-                className="top-[15%] right-[10%]"
-            />
-
-            <FloatingFeature
-                text="Smart Knowledge Graph"
-                className="bottom-[20%] left-[12%]"
-            />
-
-            <FloatingFeature
-                text="Instant Idea Capture"
-                className="top-[50%] right-[5%]"
-            />
-
-
-            <motion.div
-                initial={{ y: 80, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 1 }}
-                className="relative z-10 max-w-4xl mx-auto px-6 text-center"
+        {/* CTA buttons */}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 14,
+            marginBottom: 56,
+          }}
+        >
+          {isLoggedIn ? (
+            <Link
+              to="/ai-board"
+              data-hover="true"
+              className="btn-primary"
+              style={{ textDecoration: "none", fontSize: 15 }}
             >
+              <LayoutDashboard size={18} />
+              Go to Dashboard
+            </Link>
+          ) : (
+            <Link
+              to="/signup"
+              data-hover="true"
+              className="btn-primary"
+              style={{ textDecoration: "none", fontSize: 15 }}
+            >
+              Get Started Free
+              <ArrowRight size={18} />
+            </Link>
+          )}
+          <a
+            href="#visual-board"
+            data-hover="true"
+            className="btn-ghost"
+            style={{ fontSize: 15 }}
+          >
+            View Demo
+          </a>
+        </div>
 
-                <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary/10 border border-primary/20 text-sm mb-8 text-primary">
+        {/* Stats */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            flexWrap: "wrap",
+            gap: 40,
+          }}
+        >
+          {[
+            { value: "10k+", label: "Ideas Captured" },
+            { value: "2k+", label: "Active Thinkers" },
+            { value: "95%", label: "Faster Learning" },
+          ].map(({ value, label }) => (
+            <div key={label} style={{ textAlign: "center" }}>
+              <p
+                style={{
+                  fontFamily: "'Sora', sans-serif",
+                  fontWeight: 800,
+                  fontSize: 28,
+                  color: "var(--color-primary)",
+                  lineHeight: 1,
+                  marginBottom: 4,
+                }}
+              >
+                {value}
+              </p>
+              <p
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 13,
+                  color: "var(--color-muted)",
+                }}
+              >
+                {label}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
 
-                    <Sparkles className="w-4 h-4 animate-pulse" />
+      {/* ── Dashboard preview ── */}
+      <div
+        style={{
+          position: "relative",
+          zIndex: 10,
+          marginTop: 64,
+          maxWidth: 900,
+          width: "100%",
+          padding: "0 24px",
+        }}
+      >
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "0.5px solid var(--color-border)",
+            borderRadius: var_radius_lg,
+            padding: 2,
+            boxShadow: "0 24px 80px rgba(0,0,0,0.5)",
+          }}
+        >
+          <div
+            style={{
+              borderRadius: 16,
+              overflow: "hidden",
+              background: "rgba(11,15,26,0.9)",
+              aspectRatio: "16/10",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {/* Fake toolbar */}
+            <div
+              style={{
+                height: 52,
+                borderBottom: "0.5px solid var(--color-border)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "0 20px",
+              }}
+            >
+              <div
+                style={{
+                  maxWidth: 420,
+                  width: "100%",
+                  height: 34,
+                  background: "rgba(124,111,255,0.06)",
+                  border: "0.5px solid var(--color-border)",
+                  borderRadius: 99,
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "0 14px",
+                  gap: 8,
+                }}
+              >
+                <Wand2 style={{ width: 14, height: 14, color: "var(--color-secondary)" }} />
+                <span
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 13,
+                    color: "var(--color-muted)",
+                  }}
+                >
+                  {text}
+                </span>
+              </div>
+            </div>
 
-                    <span>
-                        The absolute future of knowledge management
-                    </span>
-
+            {/* Canvas area with floating nodes */}
+            <div style={{ flex: 1, position: "relative", padding: 24 }}>
+              {/* Node 1 */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: "25%",
+                  left: "18%",
+                  width: 200,
+                  padding: "16px 20px",
+                  background: "rgba(124,111,255,0.07)",
+                  border: "0.5px solid rgba(124,111,255,0.2)",
+                  borderRadius: 12,
+                  animation: "floatOrb 6s ease-in-out infinite",
+                  animationDelay: "0s",
+                }}
+              >
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "var(--color-text)", marginBottom: 8 }}>
+                  AI Research
                 </div>
-
-
-                <h1 className="text-6xl md:text-[5rem] font-[800] tracking-tight text-foreground mb-6 leading-[1.1]">
-
-                    Build Your Second Brain
-
-                    <br />
-
-                    <span className="text-gradient">
-
-                        with BrainStack
-
-                    </span>
-
-                </h1>
-
-
-                <p className="text-lg md:text-2xl text-foreground/60 mb-12 max-w-2xl mx-auto">
-
-                    Capture ideas instantly, organize knowledge organically,
-                    and visualize every connection in a deeply intelligent
-                    workspace.
-
-                </p>
-
-
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-
-                    {isLoggedIn ? (
-                        <MagneticButton
-                            to="/ai-board"
-                            className="flex items-center gap-2 btn-gradient-accent text-white px-10 py-5 rounded-full font-semibold shadow-xl hover:shadow-secondary/30 transition-shadow"
-                        >
-                            <LayoutDashboard className="w-5 h-5" />
-                            Go to Dashboard
-                        </MagneticButton>
-                    ) : (
-                        <MagneticButton
-                            to="/signup"
-                            className="flex items-center gap-2 btn-gradient-accent text-white px-10 py-5 rounded-full font-semibold shadow-xl hover:shadow-secondary/30 transition-shadow"
-                        >
-                            Get Started Free
-                            <ArrowRight className="w-5 h-5" />
-                        </MagneticButton>
-                    )}
-
-                    <a
-                        href="#visual-board"
-                        className="flex items-center gap-2 bg-card/60 border border-border text-foreground px-10 py-5 rounded-full font-semibold hover:bg-card/80 hover:border-primary/30 transition-all shadow-lg"
-                    >
-                        View Demo
-                    </a>
-
+                <div style={{ height: 4, background: "rgba(124,111,255,0.5)", borderRadius: 99, marginBottom: 6 }} />
+                <div style={{ height: 4, width: "70%", background: "rgba(255,255,255,0.08)", borderRadius: 99 }} />
+              </div>
+              {/* Node 2 */}
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "20%",
+                  right: "18%",
+                  width: 220,
+                  padding: "16px 20px",
+                  background: "rgba(0,210,200,0.06)",
+                  border: "0.5px solid rgba(0,210,200,0.2)",
+                  borderRadius: 12,
+                  animation: "floatOrb 7s ease-in-out infinite",
+                  animationDelay: "2s",
+                }}
+              >
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "var(--color-text)", marginBottom: 8 }}>
+                  Cognitive Models
                 </div>
-
-
-                {/* Stats */}
-
-                <div className="flex justify-center gap-12 mt-10">
-
-                    <div>
-                        <p className="text-3xl font-bold text-foreground">
-                            10k+
-                        </p>
-                        <p className="text-muted-foreground text-sm">
-                            Ideas Captured
-                        </p>
-                    </div>
-
-                    <div>
-                        <p className="text-3xl font-bold text-foreground">
-                            2k+
-                        </p>
-                        <p className="text-muted-foreground text-sm">
-                            Active Thinkers
-                        </p>
-                    </div>
-
-                    <div>
-                        <p className="text-3xl font-bold text-foreground">
-                            95%
-                        </p>
-                        <p className="text-muted-foreground text-sm">
-                            Faster Learning
-                        </p>
-                    </div>
-
-                </div>
-
-            </motion.div>
-
-
-            <HeroDashboardPreview mouseX={mouseX} mouseY={mouseY} />
-
-        </section>
-    );
+                <div style={{ height: 4, background: "rgba(0,210,200,0.5)", borderRadius: 99, marginBottom: 6 }} />
+                <div style={{ height: 4, width: "80%", background: "rgba(255,255,255,0.08)", borderRadius: 99 }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 };
+
+// CSS variable can't be used in JS string directly; use literal
+const var_radius_lg = "20px";
 
 export default LandingHero;

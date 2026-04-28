@@ -10,6 +10,11 @@ import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import Layout from "./pages/Layout";
 import AIBoard from "./pages/AIBoard";
+import Dashboard from "./pages/Dashboard";
+import ChatHistory from "./pages/ChatHistory";
+import AITools from "./pages/AITools";
+import CustomCursor from "./components/CustomCursor";
+import ProjectBoards from "./pages/ProjectBoards";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +24,8 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        {/* Custom dual-layer cursor */}
+        <CustomCursor />
         <BrowserRouter>
           <Routes>
             {/* Landing page - no sidebar */}
@@ -26,7 +33,11 @@ const App = () => (
 
             {/* Authenticated routes - with sidebar */}
             <Route element={<Layout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/projects/:projectId/boards" element={<ProjectBoards />} />
               <Route path="/ai-board" element={<AIBoard />} />
+              <Route path="/history" element={<ChatHistory />} />
+              <Route path="/ai-tools" element={<AITools />} />
             </Route>
 
             <Route path="/login" element={<Login />} />

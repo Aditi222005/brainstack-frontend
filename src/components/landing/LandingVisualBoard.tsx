@@ -1,147 +1,358 @@
 import { motion } from "framer-motion";
-import { Link } from "lucide-react";
+import { Link as LinkIcon } from "lucide-react";
 
 const easeOutQuint = [0.22, 1, 0.36, 1] as const;
 
 const LandingVisualBoard = () => {
-    return (
-        <section id="visual-board" className="py-32 relative overflow-hidden bg-[#0B0F19]">
-            {/* Soft Ambient Backgrounds */}
-            <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-indigo-600/8 blur-[150px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-cyan-500/8 blur-[150px] rounded-full pointer-events-none" />
-            <div className="absolute inset-0 pointer-events-none opacity-20" style={{ background: "repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(34, 211, 238, 0.03) 40px, rgba(34, 211, 238, 0.03) 41px)" }} />
+  return (
+    <section
+      id="visual-board"
+      style={{
+        padding: "96px 0",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Ambient orbs */}
+      <div
+        className="orb"
+        style={{
+          width: 400,
+          height: 400,
+          background: "rgba(124,111,255,0.06)",
+          top: "50%",
+          left: "-10%",
+          transform: "translateY(-50%)",
+          animationDelay: "2s",
+        }}
+      />
+      <div
+        className="orb"
+        style={{
+          width: 350,
+          height: 350,
+          background: "rgba(0,210,200,0.05)",
+          bottom: "-5%",
+          right: "-5%",
+          animationDelay: "6s",
+        }}
+      />
 
-            <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 1, ease: easeOutQuint }}
-                className="max-w-7xl mx-auto px-6 relative z-10 text-center mb-16"
-            >
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-[800] tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#E5E7EB] via-[#E5E7EB]/80 to-[#E5E7EB]/50 mb-6">
-                    See the big picture.
-                </h2>
-                <p className="text-[#E5E7EB]/45 text-xl font-light max-w-2xl mx-auto leading-relaxed">
-                    Connect your ideas intuitively on a vast infinite canvas, visualizing relationships in a dynamically networked ecosystem.
-                </p>
-            </motion.div>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 10 }}>
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.8, ease: easeOutQuint }}
+          style={{ textAlign: "center", marginBottom: 48 }}
+        >
+          <p className="section-label" style={{ marginBottom: 12 }}>Visual Mind Maps</p>
+          <h2
+            style={{
+              fontFamily: "'Sora', sans-serif",
+              fontWeight: 800,
+              fontSize: "clamp(28px, 4vw, 44px)",
+              background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              marginBottom: 14,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            See the big picture.
+          </h2>
+          <p
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 15,
+              color: "var(--color-muted)",
+              maxWidth: 480,
+              margin: "0 auto",
+              lineHeight: 1.65,
+            }}
+          >
+            Connect your ideas intuitively on a vast infinite canvas, visualizing relationships in a dynamically networked ecosystem.
+          </p>
+        </motion.div>
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 40 }}
-                whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 1.2, ease: easeOutQuint }}
-                className="max-w-5xl mx-auto px-6 w-full perspective-[2000px]"
+        {/* Board mockup */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, y: 32 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 1, ease: easeOutQuint }}
+        >
+          <div
+            style={{
+              background: "var(--color-surface)",
+              border: "0.5px solid var(--color-border)",
+              borderRadius: "var(--radius-lg)",
+              padding: 2,
+              boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
+            }}
+          >
+            <div
+              style={{
+                aspectRatio: "16/9",
+                borderRadius: 18,
+                overflow: "hidden",
+                background: "rgba(11,15,26,0.95)",
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+              }}
             >
+              {/* Mock toolbar */}
+              <div
+                style={{
+                  height: 48,
+                  borderBottom: "0.5px solid var(--color-border)",
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "0 20px",
+                  gap: 8,
+                }}
+              >
+                <div style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(239,68,68,0.5)" }} />
+                <div style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(234,179,8,0.5)" }} />
+                <div style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(34,197,94,0.5)" }} />
+                <div style={{ flex: 1 }} />
+                <div
+                  style={{
+                    width: 120,
+                    height: 24,
+                    background: "rgba(124,111,255,0.08)",
+                    border: "0.5px solid var(--color-border)",
+                    borderRadius: 99,
+                  }}
+                />
+              </div>
+
+              {/* Canvas */}
+              <div style={{ flex: 1, position: "relative" }}>
+                {/* Central node */}
                 <motion.div
-                    whileHover={{ rotateX: 2, rotateY: -2 }}
-                    transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                    className="rounded-2xl border border-indigo-500/15 bg-[#111827]/40 backdrop-blur-2xl p-2 shadow-[0_20px_60px_rgba(0,0,0,0.5)] relative transform-style-3d"
+                  drag
+                  dragConstraints={{ top: -20, left: -20, right: 20, bottom: 20 }}
+                  dragElastic={0.1}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 }}
+                  whileHover={{ scale: 1.04 }}
+                  style={{
+                    position: "absolute",
+                    top: "20%",
+                    left: "16%",
+                    width: 200,
+                    padding: "14px 18px",
+                    background: "rgba(124,111,255,0.07)",
+                    border: "0.5px solid rgba(124,111,255,0.25)",
+                    borderRadius: "var(--radius-md)",
+                    cursor: "grab",
+                    backdropFilter: "blur(8px)",
+                  }}
                 >
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.02)_1px,transparent_1px)] bg-[length:30px_30px] rounded-2xl pointer-events-none" />
-                    <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent pointer-events-none" />
-
-                    <div className="aspect-[16/9] rounded-xl overflow-hidden relative border border-indigo-500/5 bg-[#0B0F19] p-10 flex flex-col">
-
-                        {/* Mock Toolbar */}
-                        <div className="absolute top-4 left-4 right-4 h-12 bg-[#111827]/50 border border-indigo-500/10 rounded-full backdrop-blur-md flex items-center px-6 pointer-events-none">
-                            <div className="w-3 h-3 rounded-full bg-red-500/50 mr-2" />
-                            <div className="w-3 h-3 rounded-full bg-yellow-500/50 mr-2" />
-                            <div className="w-3 h-3 rounded-full bg-green-500/50 mr-6" />
-                            <div className="h-4 w-32 bg-indigo-500/10 rounded-full" />
-                        </div>
-
-                        {/* Mind Map Mockup Elements */}
-                        <div className="flex-1 relative mt-12">
-                            <motion.div
-                                drag
-                                dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
-                                dragElastic={0.1}
-                                initial={{ y: 50, x: -100, opacity: 0 }}
-                                animate={{ y: 80, x: 200, opacity: 1 }}
-                                transition={{ duration: 1, delay: 0.2, ease: easeOutQuint }}
-                                whileHover={{ scale: 1.05 }}
-                                className="absolute p-5 w-56 bg-indigo-500/5 border border-indigo-500/15 hover:border-indigo-500/40 rounded-2xl backdrop-blur-xl cursor-grab active:cursor-grabbing z-20 transition-colors shadow-2xl"
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 hover:opacity-100 transition-opacity rounded-2xl" />
-                                <h4 className="font-semibold text-[#E5E7EB]/85 text-sm mb-2 relative z-10">Central Node</h4>
-                                <div className="w-full h-1.5 bg-indigo-500/40 rounded-full mb-2 relative z-10" />
-                                <p className="text-xs text-[#E5E7EB]/45 relative z-10 font-light">Core idea generation & mapping.</p>
-                            </motion.div>
-
-                            <motion.div
-                                drag
-                                dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
-                                dragElastic={0.1}
-                                initial={{ y: 150, x: -50, opacity: 0 }}
-                                animate={{ y: -20, x: 500, opacity: 1 }}
-                                transition={{ duration: 1, delay: 0.4, ease: easeOutQuint }}
-                                whileHover={{ scale: 1.05 }}
-                                className="absolute p-5 w-60 bg-cyan-500/5 border border-cyan-500/15 hover:border-cyan-500/40 rounded-2xl backdrop-blur-xl cursor-grab active:cursor-grabbing z-20 shadow-2xl transition-colors"
-                            >
-                                <h4 className="font-semibold text-[#E5E7EB]/85 text-sm mb-2 flex items-center gap-2">
-                                    <Link className="w-3.5 h-3.5 text-cyan-400" /> Connected Branch
-                                </h4>
-                                <div className="w-4/5 h-1.5 bg-cyan-400/40 rounded-full mb-2" />
-                                <p className="text-xs text-[#E5E7EB]/45 font-light">Synthesizing relationships.</p>
-                            </motion.div>
-
-                            <motion.div
-                                drag
-                                dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
-                                dragElastic={0.1}
-                                initial={{ y: 50, x: 400, opacity: 0 }}
-                                animate={{ y: 200, x: 450, opacity: 1 }}
-                                transition={{ duration: 1, delay: 0.6, ease: easeOutQuint }}
-                                whileHover={{ scale: 1.05 }}
-                                className="absolute p-5 w-52 bg-indigo-500/5 border border-indigo-500/10 hover:border-indigo-400/40 rounded-2xl backdrop-blur-xl cursor-grab active:cursor-grabbing z-20 shadow-2xl transition-colors"
-                            >
-                                <h4 className="font-semibold text-[#E5E7EB]/85 text-sm mb-2">Deep Discovery</h4>
-                                <div className="w-full h-1.5 bg-indigo-400/40 rounded-full mb-2" />
-                                <div className="w-2/3 h-1.5 bg-[#E5E7EB]/10 rounded-full mb-2" />
-                                <p className="text-xs text-[#E5E7EB]/45 font-light">Further exploration paths.</p>
-                            </motion.div>
-
-                            {/* Connecting lines SVG */}
-                            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10 opacity-50">
-                                <motion.path
-                                    initial={{ pathLength: 0 }}
-                                    whileInView={{ pathLength: 1 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 2, ease: easeOutQuint, delay: 0.5 }}
-                                    d="M 320 120 C 400 120, 450 30, 520 30"
-                                    stroke="url(#gradientBoard1)"
-                                    strokeWidth="2.5"
-                                    fill="none"
-                                />
-                                <motion.path
-                                    initial={{ pathLength: 0 }}
-                                    whileInView={{ pathLength: 1 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 2, ease: easeOutQuint, delay: 0.8 }}
-                                    d="M 320 150 C 400 150, 450 250, 490 250"
-                                    stroke="url(#gradientBoard2)"
-                                    strokeWidth="2.5"
-                                    fill="none"
-                                    strokeDasharray="6 6"
-                                />
-                                <defs>
-                                    <linearGradient id="gradientBoard1" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" stopColor="#6366F1" />
-                                        <stop offset="100%" stopColor="#22D3EE" />
-                                    </linearGradient>
-                                    <linearGradient id="gradientBoard2" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" stopColor="#6366F1" />
-                                        <stop offset="100%" stopColor="#818CF8" />
-                                    </linearGradient>
-                                </defs>
-                            </svg>
-                        </div>
-                    </div>
+                  <h4
+                    style={{
+                      fontFamily: "'Sora', sans-serif",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: "var(--color-text)",
+                      marginBottom: 8,
+                    }}
+                  >
+                    Central Node
+                  </h4>
+                  <div
+                    style={{
+                      height: 4,
+                      background: "rgba(124,111,255,0.5)",
+                      borderRadius: 99,
+                      marginBottom: 6,
+                    }}
+                  />
+                  <p
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 11,
+                      color: "var(--color-muted)",
+                    }}
+                  >
+                    Core idea generation & mapping.
+                  </p>
                 </motion.div>
-            </motion.div>
-        </section>
-    );
+
+                {/* Connected branch */}
+                <motion.div
+                  drag
+                  dragConstraints={{ top: -20, left: -20, right: 20, bottom: 20 }}
+                  dragElastic={0.1}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 }}
+                  whileHover={{ scale: 1.04 }}
+                  style={{
+                    position: "absolute",
+                    top: "10%",
+                    right: "15%",
+                    width: 210,
+                    padding: "14px 18px",
+                    background: "rgba(0,210,200,0.06)",
+                    border: "0.5px solid rgba(0,210,200,0.25)",
+                    borderRadius: "var(--radius-md)",
+                    cursor: "grab",
+                    backdropFilter: "blur(8px)",
+                  }}
+                >
+                  <h4
+                    style={{
+                      fontFamily: "'Sora', sans-serif",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: "var(--color-text)",
+                      marginBottom: 8,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <LinkIcon style={{ width: 12, height: 12, color: "var(--color-secondary)" }} />
+                    Connected Branch
+                  </h4>
+                  <div
+                    style={{
+                      height: 4,
+                      width: "80%",
+                      background: "rgba(0,210,200,0.5)",
+                      borderRadius: 99,
+                      marginBottom: 6,
+                    }}
+                  />
+                  <p
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 11,
+                      color: "var(--color-muted)",
+                    }}
+                  >
+                    Synthesizing relationships.
+                  </p>
+                </motion.div>
+
+                {/* Deep discovery node */}
+                <motion.div
+                  drag
+                  dragConstraints={{ top: -20, left: -20, right: 20, bottom: 20 }}
+                  dragElastic={0.1}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.7 }}
+                  whileHover={{ scale: 1.04 }}
+                  style={{
+                    position: "absolute",
+                    bottom: "18%",
+                    right: "20%",
+                    width: 190,
+                    padding: "14px 18px",
+                    background: "rgba(124,111,255,0.05)",
+                    border: "0.5px solid rgba(124,111,255,0.2)",
+                    borderRadius: "var(--radius-md)",
+                    cursor: "grab",
+                    backdropFilter: "blur(8px)",
+                  }}
+                >
+                  <h4
+                    style={{
+                      fontFamily: "'Sora', sans-serif",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: "var(--color-text)",
+                      marginBottom: 8,
+                    }}
+                  >
+                    Deep Discovery
+                  </h4>
+                  <div
+                    style={{
+                      height: 4,
+                      background: "rgba(124,111,255,0.4)",
+                      borderRadius: 99,
+                      marginBottom: 6,
+                    }}
+                  />
+                  <div
+                    style={{
+                      height: 4,
+                      width: "65%",
+                      background: "rgba(255,255,255,0.06)",
+                      borderRadius: 99,
+                      marginBottom: 6,
+                    }}
+                  />
+                  <p
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 11,
+                      color: "var(--color-muted)",
+                    }}
+                  >
+                    Further exploration paths.
+                  </p>
+                </motion.div>
+
+                {/* SVG connecting lines */}
+                <svg
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    pointerEvents: "none",
+                    zIndex: 0,
+                    opacity: 0.4,
+                  }}
+                >
+                  <motion.path
+                    initial={{ pathLength: 0 }}
+                    whileInView={{ pathLength: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 2, ease: easeOutQuint, delay: 0.6 }}
+                    d="M 320 110 C 400 110, 450 60, 520 55"
+                    stroke="url(#vbg1)"
+                    strokeWidth="1.5"
+                    fill="none"
+                  />
+                  <motion.path
+                    initial={{ pathLength: 0 }}
+                    whileInView={{ pathLength: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 2, ease: easeOutQuint, delay: 0.9 }}
+                    d="M 320 130 C 400 160, 450 210, 490 220"
+                    stroke="url(#vbg2)"
+                    strokeWidth="1.5"
+                    fill="none"
+                    strokeDasharray="5 5"
+                  />
+                  <defs>
+                    <linearGradient id="vbg1" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#7C6FFF" />
+                      <stop offset="100%" stopColor="#00D2C8" />
+                    </linearGradient>
+                    <linearGradient id="vbg2" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#7C6FFF" />
+                      <stop offset="100%" stopColor="#7C6FFF" stopOpacity="0.3" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
 };
 
 export default LandingVisualBoard;

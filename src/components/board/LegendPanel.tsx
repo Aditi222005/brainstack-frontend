@@ -3,24 +3,43 @@ import { useState } from 'react';
 import { Info } from 'lucide-react';
 import { EDGE_TYPES, EDGE_TYPE_LIST, NODE_COLORS, NodeColor } from './boardTheme';
 
-const COLOR_LIST: NodeColor[] = ['blue', 'purple', 'green', 'yellow', 'red'];
+const COLOR_LIST: NodeColor[] = ['blue', 'purple', 'green', 'yellow', 'red', 'orange', 'pink'];
 
 export function LegendPanel() {
     const [open, setOpen] = useState(false);
 
     return (
-        <div className="fixed top-6 right-6 z-40">
+        <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 40 }}>
             {/* Toggle button */}
             <button
                 onClick={() => setOpen(!open)}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all
-                    ${open
-                        ? 'bg-indigo-500/20 border border-indigo-500/40 text-indigo-300'
-                        : 'bg-[#111827]/70 backdrop-blur-xl border border-indigo-500/15 text-[#E5E7EB]/40 hover:text-indigo-300 hover:border-indigo-500/30'
-                    }`}
+                style={{
+                    width: 36, height: 36, borderRadius: '50%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: open ? 'rgba(124,111,255,0.15)' : 'rgba(11,15,26,0.80)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    border: `0.5px solid ${open ? 'rgba(124,111,255,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                    color: open ? 'var(--color-primary)' : 'rgba(232,234,240,0.35)',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s, border-color 0.2s, color 0.2s',
+                    boxShadow: open ? '0 0 16px rgba(124,111,255,0.25)' : '0 2px 8px rgba(0,0,0,0.3)',
+                }}
                 title="Toggle Legend"
+                onMouseEnter={e => {
+                    if (!open) {
+                        (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-primary)';
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(124,111,255,0.3)';
+                    }
+                }}
+                onMouseLeave={e => {
+                    if (!open) {
+                        (e.currentTarget as HTMLButtonElement).style.color = 'rgba(232,234,240,0.35)';
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.08)';
+                    }
+                }}
             >
-                <Info className="w-4 h-4" />
+                <Info style={{ width: 15, height: 15 }} />
             </button>
 
             <AnimatePresence>
@@ -29,57 +48,55 @@ export function LegendPanel() {
                         initial={{ opacity: 0, y: -8, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                        className="absolute right-0 top-12 bg-[#111827]/90 backdrop-blur-xl border border-indigo-500/15 rounded-xl p-4 shadow-[0_8px_40px_rgba(0,0,0,0.5)] w-64"
+                        transition={{ type: 'spring', stiffness: 400, damping: 26 }}
+                        style={{
+                            position: 'absolute', right: 0, top: 44,
+                            background: 'rgba(11,15,26,0.96)',
+                            backdropFilter: 'blur(16px)',
+                            WebkitBackdropFilter: 'blur(16px)',
+                            border: '0.5px solid rgba(124,111,255,0.18)',
+                            borderRadius: 14,
+                            padding: 16,
+                            boxShadow: '0 12px 48px rgba(0,0,0,0.6)',
+                            width: 240,
+                        }}
                     >
                         {/* Connection Types */}
-                        <div className="text-[9px] uppercase tracking-widest text-[#E5E7EB]/25 font-semibold mb-2">
+                        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'rgba(232,234,240,0.28)', marginBottom: 10 }}>
                             Connections
                         </div>
-                        <div className="flex flex-col gap-2 mb-4">
-                            {EDGE_TYPE_LIST.map((type) => {
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 18 }}>
+                            {EDGE_TYPE_LIST.map(type => {
                                 const config = EDGE_TYPES[type];
                                 return (
-                                    <div key={type} className="flex items-start gap-2.5">
-                                        <div className="flex flex-col items-center gap-0.5 mt-0.5 flex-shrink-0">
-                                            <span className="text-sm leading-none">{config.icon}</span>
-                                            <svg width="2" height="10" className="mt-0.5">
-                                                <line
-                                                    x1="1" y1="0" x2="1" y2="10"
-                                                    stroke={config.color}
-                                                    strokeWidth={2}
-                                                    strokeDasharray={config.dashArray === '0' ? 'none' : config.dashArray}
-                                                    strokeLinecap="round"
-                                                />
+                                    <div key={type} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, marginTop: 2, flexShrink: 0 }}>
+                                            <span style={{ fontSize: 13, lineHeight: 1 }}>{config.icon}</span>
+                                            <svg width="2" height="10">
+                                                <line x1="1" y1="0" x2="1" y2="10" stroke={config.color} strokeWidth={2}
+                                                    strokeDasharray={config.dashArray === '0' ? undefined : config.dashArray} strokeLinecap="round" />
                                             </svg>
                                         </div>
                                         <div>
-                                            <div className="text-[11px] font-semibold" style={{ color: config.color }}>
-                                                {config.label}
-                                            </div>
-                                            <div className="text-[10px] text-[#E5E7EB]/35 leading-snug">
-                                                {config.description}
-                                            </div>
+                                            <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 11, color: config.color, marginBottom: 2 }}>{config.label}</div>
+                                            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: 'rgba(232,234,240,0.38)', lineHeight: 1.45 }}>{config.description}</div>
                                         </div>
                                     </div>
                                 );
                             })}
                         </div>
 
-                        {/* Node Colors */}
-                        <div className="text-[9px] uppercase tracking-widest text-[#E5E7EB]/25 font-semibold mb-2">
+                        {/* Node Status */}
+                        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'rgba(232,234,240,0.28)', marginBottom: 10 }}>
                             Node Status
                         </div>
-                        <div className="flex flex-col gap-1.5">
-                            {COLOR_LIST.map((color) => {
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                            {COLOR_LIST.map(color => {
                                 const config = NODE_COLORS[color];
                                 return (
-                                    <div key={color} className="flex items-center gap-2.5">
-                                        <div
-                                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                                            style={{ backgroundColor: config.dot }}
-                                        />
-                                        <span className="text-[11px] text-[#E5E7EB]/60">{config.label}</span>
+                                    <div key={color} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                        <div style={{ width: 10, height: 10, borderRadius: '50%', flexShrink: 0, backgroundColor: config.dot, boxShadow: `0 0 6px ${config.dot}60` }} />
+                                        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: 'rgba(232,234,240,0.55)' }}>{config.label}</span>
                                     </div>
                                 );
                             })}

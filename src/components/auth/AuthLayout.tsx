@@ -1,73 +1,83 @@
-import { motion } from "framer-motion";
-import { Brain } from "lucide-react";
-
-interface AuthLayoutProps {
-  children: React.ReactNode;
-}
+interface AuthLayoutProps { children: React.ReactNode; }
 
 const AuthLayout = ({ children }: AuthLayoutProps) => {
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-background overflow-hidden transition-colors duration-500">
-      {/* Animated background glow */}
-      <div className="auth-gradient-bg absolute inset-0" />
-      
-      {/* Subtle grid pattern */}
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "var(--color-bg)",
+        padding: "24px",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Ambient orbs */}
       <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        className="orb"
         style={{
-          backgroundImage: `linear-gradient(hsl(var(--primary) / 0.3) 1px, transparent 1px),
-            linear-gradient(90deg, hsl(var(--primary) / 0.3) 1px, transparent 1px)`,
-          backgroundSize: "60px 60px",
+          width: 500,
+          height: 500,
+          background: "rgba(124,111,255,0.12)",
+          top: "-20%",
+          right: "-10%",
+          animationDelay: "0s",
+        }}
+      />
+      <div
+        className="orb"
+        style={{
+          width: 400,
+          height: 400,
+          background: "rgba(0,210,200,0.07)",
+          bottom: "-15%",
+          left: "-10%",
+          animationDelay: "5s",
         }}
       />
 
-      {/* Floating orbs */}
-      <motion.div
-        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-primary/10 blur-[120px]"
-        animate={{
-          x: [0, 40, -30, 0],
-          y: [0, -30, 40, 0],
-          scale: [1, 1.2, 0.9, 1],
+      {/* Card */}
+      <div
+        style={{
+          position: "relative",
+          zIndex: 10,
+          width: "100%",
+          maxWidth: 420,
         }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-      />
-      <motion.div
-        className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-secondary/8 blur-[140px]"
-        animate={{
-          x: [0, -40, 30, 0],
-          y: [0, 30, -40, 0],
-          scale: [1, 0.85, 1.15, 1],
-        }}
-        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-      />
-
-      {/* Content */}
-      <div className="relative z-10 w-full max-w-md px-6 py-12">
+      >
         {/* Logo */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col items-center gap-4 mb-10"
-        >
-          <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 shadow-2xl shadow-primary/20">
-            <Brain className="h-10 w-10 text-primary" />
-          </div>
-          <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary tracking-tight">
-            BrainStack
-          </span>
-          <p className="text-muted-foreground text-sm font-medium opacity-60">Your Intelligent Knowledge Base</p>
-        </motion.div>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <a
+            href="/"
+            style={{ textDecoration: "none" }}
+          >
+            <span
+              style={{
+                fontFamily: "'Sora', sans-serif",
+                fontWeight: 800,
+                fontSize: 28,
+                color: "var(--color-text)",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Brain<span style={{ color: "var(--color-primary)" }}>Stack</span>
+            </span>
+          </a>
+        </div>
 
-        {/* Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-          className="rounded-3xl border border-border bg-card/60 backdrop-blur-2xl p-8 shadow-2xl shadow-black/10 surface-elevated"
+        {/* Content card */}
+        <div
+          style={{
+            background: "rgba(255,255,255,0.03)",
+            border: "0.5px solid var(--color-border)",
+            borderRadius: "var(--radius-md)",
+            padding: "36px 32px",
+          }}
         >
           {children}
-        </motion.div>
+        </div>
       </div>
     </div>
   );

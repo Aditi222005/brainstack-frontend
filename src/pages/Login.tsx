@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 import AuthLayout from "@/components/auth/AuthLayout";
@@ -17,119 +16,165 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ email, password }),
       });
-
       const data = await res.json();
       if (data.success) {
         localStorage.setItem("token", data.data.token);
         localStorage.setItem("user", JSON.stringify(data.data));
-        navigate("/ai-board");
+        navigate("/dashboard");
       } else {
         setError(data.message || "Failed to login");
       }
     } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.");
+      setError(err.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <AuthLayout>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {/* Header */}
+        <div style={{ marginBottom: 8 }}>
+          <h2
+            style={{
+              fontFamily: "'Sora', sans-serif",
+              fontWeight: 800,
+              fontSize: 22,
+              color: "var(--color-text)",
+              marginBottom: 4,
+            }}
+          >
+            Welcome back
+          </h2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "var(--color-muted)" }}>
+            Sign in to your BrainStack account
+          </p>
+        </div>
+
+        {/* Error */}
         {error && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-lg text-center"
+          <div
+            style={{
+              borderLeft: "3px solid #ef4444",
+              background: "rgba(239,68,68,0.08)",
+              padding: "10px 14px",
+              borderRadius: "0 var(--radius-sm) var(--radius-sm) 0",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              color: "#f87171",
+            }}
           >
             {error}
-          </motion.div>
+          </div>
         )}
-        <GoogleButton label="Sign in with Google" delay={0.2} />
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.4 }}
-          className="flex items-center gap-3 py-2"
-        >
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-sm text-muted-foreground">
-            Or, sign in with your email
+        <GoogleButton label="Sign in with Google" />
+
+        {/* Divider */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ flex: 1, height: 1, background: "var(--color-border)" }} />
+          <span
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 12,
+              color: "var(--color-muted)",
+            }}
+          >
+            or via email
           </span>
-          <div className="flex-1 h-px bg-border" />
-        </motion.div>
+          <div style={{ flex: 1, height: 1, background: "var(--color-border)" }} />
+        </div>
 
-        <AuthInput
-          icon={Mail}
-          placeholder="Email"
-          type="email"
-          value={email}
-          onChange={setEmail}
-          delay={0.35}
-        />
+        <AuthInput icon={Mail} placeholder="Email address" type="email" value={email} onChange={setEmail} />
+        <AuthInput icon={Lock} placeholder="Password" type="password" value={password} onChange={setPassword} />
 
-        <AuthInput
-          icon={Lock}
-          placeholder="Password"
-          type="password"
-          value={password}
-          onChange={setPassword}
-          delay={0.4}
-        />
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.45, duration: 0.4 }}
-          className="flex justify-end"
-        >
+        <div style={{ textAlign: "right" }}>
           <a
             href="#"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 underline decoration-primary/30 underline-offset-2 hover:decoration-primary"
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              color: "var(--color-muted)",
+              textDecoration: "none",
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-primary)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-muted)")}
           >
             Forgot password?
           </a>
-        </motion.div>
+        </div>
 
-        <motion.button
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+        <button
           type="submit"
+          id="login-submit-btn"
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 rounded-lg btn-gradient px-6 py-3.5 text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:shadow-primary/30 disabled:opacity-70 disabled:cursor-not-allowed"
+          data-hover="true"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            background: "var(--color-primary)",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: 999,
+            padding: "12px 24px",
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 500,
+            fontSize: 15,
+            cursor: loading ? "not-allowed" : "pointer",
+            opacity: loading ? 0.7 : 1,
+            transition: "transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s",
+            marginTop: 4,
+          }}
+          onMouseEnter={(e) => {
+            if (!loading) {
+              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 24px rgba(124,111,255,0.4)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
+            (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+          }}
         >
-          {loading ? "Signing in..." : "Sign In"}
-          <ArrowRight className="h-4 w-4" />
-        </motion.button>
+          {loading ? "Signing in…" : "Sign In"}
+          {!loading && <ArrowRight size={16} />}
+        </button>
       </form>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6, duration: 0.4 }}
-        className="mt-8 text-center text-sm text-muted-foreground"
+      <p
+        style={{
+          marginTop: 24,
+          textAlign: "center",
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: 13,
+          color: "var(--color-muted)",
+          paddingTop: 20,
+          borderTop: "0.5px solid var(--color-border)",
+        }}
       >
         Don't have an account?{" "}
         <Link
           to="/signup"
-          className="text-foreground font-medium underline decoration-primary/50 underline-offset-2 hover:decoration-primary transition-colors duration-200"
+          style={{
+            color: "var(--color-primary)",
+            fontWeight: 500,
+            textDecoration: "none",
+          }}
         >
-          Sign up
+          Create one →
         </Link>
-      </motion.p>
+      </p>
     </AuthLayout>
   );
 };

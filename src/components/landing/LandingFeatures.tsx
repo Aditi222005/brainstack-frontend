@@ -1,121 +1,208 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
 import { LayoutDashboard, FileText, Share2, Sparkles, Tags, Search } from "lucide-react";
 
 const features = [
-    {
-        icon: <LayoutDashboard className="w-8 h-8" />,
-        title: "Visual Boards",
-        description: "Map out your ideas on a vast infinite canvas, visually linking knowledge perfectly.",
-    },
-    {
-        icon: <FileText className="w-8 h-8" />,
-        title: "Smart Notes",
-        description: "Format and embed any content easily into a highly intuitive rich-text environment.",
-    },
-    {
-        icon: <Share2 className="w-8 h-8" />,
-        title: "Knowledge Graph",
-        description: "Understand the hidden relationships between notes through automated deep linking.",
-    },
-    {
-        icon: <Sparkles className="w-8 h-8" />,
-        title: "AI Suggestions",
-        description: "Let AI synthesize and suggest insights based on your existing workspace history.",
-    },
-    {
-        icon: <Tags className="w-8 h-8" />,
-        title: "Tag & Link System",
-        description: "Build robust networked systems easily mapping diverse information instantly.",
-    },
-    {
-        icon: <Search className="w-8 h-8" />,
-        title: "Quick Search",
-        description: "Instantly retrieve your second brain documents seamlessly anywhere via spotlight.",
-    },
+  {
+    icon: <LayoutDashboard />,
+    title: "Visual Boards",
+    description: "Map out your ideas on a vast infinite canvas, visually linking knowledge perfectly.",
+  },
+  {
+    icon: <FileText />,
+    title: "Smart Notes",
+    description: "Format and embed any content easily into a highly intuitive rich-text environment.",
+  },
+  {
+    icon: <Share2 />,
+    title: "Knowledge Graph",
+    description: "Understand the hidden relationships between notes through automated deep linking.",
+  },
+  {
+    icon: <Sparkles />,
+    title: "AI Suggestions",
+    description: "Let AI synthesize and suggest insights based on your existing workspace history.",
+  },
+  {
+    icon: <Tags />,
+    title: "Tag & Link System",
+    description: "Build robust networked systems easily mapping diverse information instantly.",
+  },
+  {
+    icon: <Search />,
+    title: "Quick Search",
+    description: "Instantly retrieve your second brain documents seamlessly anywhere via spotlight.",
+  },
 ];
 
-const easeOutQuint = [0.22, 1, 0.36, 1] as const;
+interface FeatureCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  delay: number;
+}
 
-const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.15,
-        }
-    }
-};
+const FeatureCard = ({ icon, title, description, delay }: FeatureCardProps) => {
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
+  const [hovered, setHovered] = useState(false);
+  const isCoarse = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
 
-const itemVariants = {
-    hidden: { opacity: 0, y: 50, scale: 0.95 },
-    show: {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        transition: { duration: 0.8, ease: easeOutQuint }
-    }
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isCoarse) return;
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const rotateY = ((x / rect.width) - 0.5) * 20;
+    const rotateX = -((y / rect.height) - 0.5) * 20;
+    setTilt({ rotateX, rotateY });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ rotateX: 0, rotateY: 0 });
+    setHovered(false);
+  };
+
+  return (
+    <div
+      data-reveal="true"
+      data-hover="true"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        background: "var(--color-surface)",
+        border: hovered ? "0.5px solid var(--color-border-hover)" : "0.5px solid var(--color-border)",
+        borderRadius: "var(--radius-md)",
+        padding: 28,
+        position: "relative",
+        overflow: "hidden",
+        transform: `perspective(400px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
+        transition: "border-color 0.25s ease, box-shadow 0.25s ease, transform 0.1s ease",
+        boxShadow: hovered ? "0 0 0 1px rgba(124,111,255,0.2), 0 8px 32px rgba(0,0,0,0.3)" : "none",
+        animationDelay: `${delay}s`,
+      }}
+    >
+      {/* Icon container */}
+      <div
+        style={{
+          width: 44,
+          height: 44,
+          background: "rgba(124,111,255,0.10)",
+          borderRadius: 10,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "var(--color-primary)",
+          marginBottom: 18,
+        }}
+      >
+        {icon}
+      </div>
+
+      <h3
+        style={{
+          fontFamily: "'Sora', sans-serif",
+          fontWeight: 700,
+          fontSize: 18,
+          color: "var(--color-text)",
+          marginBottom: 8,
+        }}
+      >
+        {title}
+      </h3>
+      <p
+        style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: 14,
+          color: "var(--color-muted)",
+          lineHeight: 1.65,
+        }}
+      >
+        {description}
+      </p>
+    </div>
+  );
 };
 
 const LandingFeatures = () => {
-    return (
-        <section id="features" className="py-32 relative bg-[#0B0F19]/50 border-t border-b border-indigo-500/5 overflow-hidden">
-            {/* Speed line ambient bg */}
-            <div className="absolute inset-0 pointer-events-none opacity-20" style={{ background: "repeating-linear-gradient(transparent, transparent 40px, rgba(99, 102, 241, 0.05) 40px, rgba(99, 102, 241, 0.05) 41px)" }} />
+  return (
+    <section
+      id="features"
+      style={{
+        padding: "96px 0",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Subtle horizontal separator lines */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(255,255,255,0.015)",
+          pointerEvents: "none",
+        }}
+      />
 
-            <div className="max-w-7xl mx-auto px-6 relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    transition={{ duration: 1, ease: easeOutQuint }}
-                    className="text-center mb-20"
-                >
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-[800] bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-indigo-300 to-cyan-400 mb-6 tracking-tight">
-                        Everything you need.
-                    </h2>
-                    <p className="text-[#E5E7EB]/45 text-xl max-w-2xl mx-auto font-light leading-relaxed">
-                        A comprehensive suite of tools built to extend your mind, seamlessly connected in a unified intelligent workspace.
-                    </p>
-                </motion.div>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 10 }}>
+        {/* Section header */}
+        <div style={{ textAlign: "center", marginBottom: 64 }}>
+          <p
+            className="section-label"
+            style={{ marginBottom: 12 }}
+          >
+            What You Get
+          </p>
+          <h2
+            style={{
+              fontFamily: "'Sora', sans-serif",
+              fontWeight: 800,
+              fontSize: "clamp(28px, 4vw, 44px)",
+              background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              marginBottom: 16,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Everything you need.
+          </h2>
+          <p
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 15,
+              color: "var(--color-muted)",
+              maxWidth: 520,
+              margin: "0 auto",
+              lineHeight: 1.65,
+            }}
+          >
+            A comprehensive suite of tools built to extend your mind, seamlessly connected in a unified intelligent workspace.
+          </p>
+        </div>
 
-                <motion.div
-                    variants={containerVariants}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, margin: "-50px" }}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                >
-                    {features.map((feature, idx) => (
-                        <motion.div
-                            key={idx}
-                            variants={itemVariants}
-                            whileHover={{ scale: 1.04, y: -5 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                            className="group p-8 rounded-3xl bg-[#111827]/40 border border-indigo-500/10 hover:border-transparent transition-all duration-500 backdrop-blur-xl shadow-lg relative overflow-hidden"
-                        >
-                            {/* Hover Neon Edge Glow */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/15 via-transparent to-cyan-500/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
-                            {/* Border gradient trick */}
-                            <div className="absolute inset-0 rounded-3xl p-[1px] bg-gradient-to-br from-[#E5E7EB]/8 via-transparent to-[#E5E7EB]/4 opacity-100 group-hover:opacity-0 transition-opacity duration-500 -z-10" />
-                            <div className="absolute inset-0 rounded-3xl p-[1px] bg-gradient-to-br from-indigo-500/40 via-indigo-500/0 to-cyan-500/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
-
-                            <div className="relative z-10">
-                                <div className="text-[#E5E7EB]/50 mb-6 group-hover:text-indigo-400 group-hover:drop-shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all duration-300">
-                                    {feature.icon}
-                                </div>
-                                <h3 className="text-2xl font-semibold text-[#E5E7EB]/85 mb-3 group-hover:text-[#E5E7EB] transition-colors">
-                                    {feature.title}
-                                </h3>
-                                <p className="text-[#E5E7EB]/45 leading-relaxed font-light group-hover:text-[#E5E7EB]/65 transition-colors">
-                                    {feature.description}
-                                </p>
-                            </div>
-                        </motion.div>
-                    ))}
-                </motion.div>
-            </div>
-        </section>
-    );
+        {/* Feature grid */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: 20,
+          }}
+        >
+          {features.map((feature, idx) => (
+            <FeatureCard
+              key={feature.title}
+              icon={feature.icon}
+              title={feature.title}
+              description={feature.description}
+              delay={idx * 0.05}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 };
 
 export default LandingFeatures;

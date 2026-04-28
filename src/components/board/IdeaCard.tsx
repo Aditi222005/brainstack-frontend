@@ -29,15 +29,9 @@ interface IdeaCardProps {
 }
 
 export const IdeaCard = memo(function IdeaCard({
-    idea,
-    onUpdate,
-    onConnectionStart,
-    onConnectionEnd,
-    isConnecting = false,
-    connectingFromId = null,
-    dimmed = false,
-    highlighted = false,
-    onDelete,
+    idea, onUpdate, onConnectionStart, onConnectionEnd,
+    isConnecting = false, connectingFromId = null,
+    dimmed = false, highlighted = false, onDelete,
 }: IdeaCardProps) {
     const [title, setTitle] = useState(idea.title);
     const [content, setContent] = useState(idea.content);
@@ -45,56 +39,27 @@ export const IdeaCard = memo(function IdeaCard({
     const [position, setPosition] = useState({ x: idea.x, y: idea.y });
     const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Color system config
     const colorStyle = NODE_COLORS[idea.color || 'blue'];
     const isValidTarget = isConnecting && connectingFromId !== idea.id;
 
-    useEffect(() => {
-        setTitle(idea.title);
-        setContent(idea.content);
-    }, [idea.title, idea.content]);
+    useEffect(() => { setTitle(idea.title); setContent(idea.content); }, [idea.title, idea.content]);
+    useEffect(() => { setPosition({ x: idea.x, y: idea.y }); }, [idea.x, idea.y]);
 
-    useEffect(() => {
-        setPosition({ x: idea.x, y: idea.y });
-    }, [idea.x, idea.y]);
+    const debouncedSave = useCallback((updates: Partial<Idea>) => {
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(() => { onUpdate?.(idea.id, updates); }, 600);
+    }, [idea.id, onUpdate]);
 
-    const debouncedSave = useCallback(
-        (updates: Partial<Idea>) => {
-            if (debounceTimer.current) {
-                clearTimeout(debounceTimer.current);
-            }
-            debounceTimer.current = setTimeout(() => {
-                onUpdate?.(idea.id, updates);
-            }, 600);
-        },
-        [idea.id, onUpdate]
-    );
+    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => { const v = e.target.value; setTitle(v); debouncedSave({ title: v }); };
+    const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => { const v = e.target.value; setContent(v); debouncedSave({ content: v }); };
+    const handleColorChange = (newColor: NodeColor) => { onUpdate?.(idea.id, { color: newColor }); };
 
-    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newTitle = e.target.value;
-        setTitle(newTitle);
-        debouncedSave({ title: newTitle });
-    };
-
-    const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const newContent = e.target.value;
-        setContent(newContent);
-        debouncedSave({ content: newContent });
-    };
-
-    const handleColorChange = (newColor: NodeColor) => {
-        onUpdate?.(idea.id, { color: newColor });
-    };
-
-    const handleDragEnd = useCallback(
-        (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-            const newX = Math.round(position.x + info.offset.x);
-            const newY = Math.round(position.y + info.offset.y);
-            setPosition({ x: newX, y: newY });
-            onUpdate?.(idea.id, { x: newX, y: newY });
-        },
-        [idea.id, onUpdate, position.x, position.y]
-    );
+    const handleDragEnd = useCallback((_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+        const newX = Math.round(position.x + info.offset.x);
+        const newY = Math.round(position.y + info.offset.y);
+        setPosition({ x: newX, y: newY });
+        onUpdate?.(idea.id, { x: newX, y: newY });
+    }, [idea.id, onUpdate, position.x, position.y]);
 
     return (
         <motion.div
@@ -102,80 +67,129 @@ export const IdeaCard = memo(function IdeaCard({
             dragMomentum={false}
             onDragEnd={handleDragEnd}
             initial={{ x: position.x, y: position.y, opacity: 0, scale: 0.9 }}
-            animate={{ 
-                opacity: dimmed ? 0.35 : 1,
-                scale: highlighted ? 1.05 : 1,
-                boxShadow: highlighted ? `0 0 35px ${colorStyle.dot}40` : undefined,
-                zIndex: isConnecting || highlighted ? 50 : 10
+            animate={{
+                opacity: dimmed ? 0.3 : 1,
+                scale: highlighted ? 1.03 : 1,
+                boxShadow: highlighted
+                    ? `0 0 0 1.5px ${colorStyle.dot}55, 0 0 28px ${colorStyle.dot}20`
+                    : `0 4px 16px rgba(0,0,0,0.35)`,
+                zIndex: isConnecting || highlighted ? 50 : 10,
             }}
-            whileHover={{ scale: isConnecting ? 1 : 1.02 }}
-            style={{ position: 'absolute', left: 0, top: 0, x: position.x, y: position.y }}
-            className={`bg-card/90 backdrop-blur-md rounded-xl p-4 transition-all duration-300 w-72 cursor-grab active:cursor-grabbing group border-2
-                ${isValidTarget ? 'border-secondary !opacity-100 shadow-[0_0_30px_hsl(var(--secondary)/0.4)]' : colorStyle.border}
-                ${highlighted ? `!border-foreground/40 ${colorStyle.glow}` : colorStyle.glow}
-                ${dimmed ? 'grayscale-[0.3]' : ''}
-                surface-elevated
-            `}
+            whileHover={{ scale: isConnecting ? 1 : 1.015 }}
+            style={{
+                position: 'absolute',
+                left: 0, top: 0,
+                x: position.x, y: position.y,
+                width: 288,
+                background: 'rgba(11,15,26,0.90)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                borderRadius: 16,
+                border: isValidTarget
+                    ? '1.5px solid var(--color-secondary)'
+                    : highlighted
+                        ? `1.5px solid ${colorStyle.dot}50`
+                        : `0.5px solid ${colorStyle.dot}28`,
+                padding: 16,
+                cursor: 'grab',
+                transition: 'border-color 0.2s ease, opacity 0.3s ease',
+                filter: dimmed ? 'grayscale(0.25)' : 'none',
+            }}
+            className="group active:cursor-grabbing"
         >
             {/* Connection Handles */}
-            <ConnectionHandle nodeId={idea.id} side="left" onConnectionStart={onConnectionStart} onConnectionEnd={onConnectionEnd} isConnecting={isConnecting} isValidTarget={isValidTarget} />
-            <ConnectionHandle nodeId={idea.id} side="right" onConnectionStart={onConnectionStart} onConnectionEnd={onConnectionEnd} isConnecting={isConnecting} isValidTarget={isValidTarget} />
-            <ConnectionHandle nodeId={idea.id} side="top" onConnectionStart={onConnectionStart} onConnectionEnd={onConnectionEnd} isConnecting={isConnecting} isValidTarget={isValidTarget} />
-            <ConnectionHandle nodeId={idea.id} side="bottom" onConnectionStart={onConnectionStart} onConnectionEnd={onConnectionEnd} isConnecting={isConnecting} isValidTarget={isValidTarget} />
+            {(['left', 'right', 'top', 'bottom'] as const).map(side => (
+                <ConnectionHandle key={side} nodeId={idea.id} side={side}
+                    onConnectionStart={onConnectionStart!} onConnectionEnd={onConnectionEnd!}
+                    isConnecting={isConnecting} isValidTarget={isValidTarget} />
+            ))}
 
-            <div className="flex justify-between items-center mb-2 gap-2">
+            {/* Header row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                {/* Color accent dot */}
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: colorStyle.dot, boxShadow: `0 0 8px ${colorStyle.dot}80`, flexShrink: 0 }} />
                 <input
                     type="text"
                     value={title}
                     onChange={handleTitleChange}
-                    className="bg-transparent border-none outline-none text-foreground font-bold w-full text-lg"
+                    style={{
+                        background: 'transparent', border: 'none', outline: 'none',
+                        fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 14,
+                        color: 'var(--color-text)', flex: 1,
+                        letterSpacing: '-0.01em',
+                    }}
                     placeholder="Idea title..."
                 />
-                <div className="flex items-center gap-2">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                     <ColorPicker currentColor={idea.color || 'blue'} onChange={handleColorChange} />
-                    <Sparkles className={`w-3.5 h-3.5 ${colorStyle.text} opacity-50 group-hover:opacity-100 transition-opacity`} />
+                    <Sparkles style={{ width: 13, height: 13, color: colorStyle.dot, opacity: 0.45, transition: 'opacity 0.2s' }} className="group-hover:opacity-100" />
                     {onDelete && (
                         <button
                             title="Delete Idea"
                             onClick={(e) => { e.stopPropagation(); onDelete(idea.id); }}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-red-500/70 hover:text-red-400 rounded-md hover:bg-black/20"
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, borderRadius: 6, opacity: 0, color: '#ef4444', transition: 'opacity 0.2s, background 0.2s' }}
+                            className="group-hover:!opacity-100 hover:!bg-[rgba(239,68,68,0.1)]"
                         >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 style={{ width: 13, height: 13 }} />
                         </button>
                     )}
                 </div>
             </div>
-            
+
+            {/* Content area */}
             {isEditingContent ? (
                 <textarea
                     autoFocus
                     value={content}
                     onChange={handleContentChange}
                     onBlur={() => setIsEditingContent(false)}
-                    className="w-full bg-transparent border-none outline-none text-foreground/70 text-sm resize-none min-h-[5rem] leading-relaxed font-normal"
+                    style={{
+                        width: '100%', background: 'transparent', border: 'none', outline: 'none',
+                        fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 400,
+                        color: 'rgba(232,234,240,0.7)', resize: 'none', minHeight: '5rem',
+                        lineHeight: 1.6,
+                    }}
                     placeholder="Describe your idea..."
                 />
             ) : (
-                <div 
+                <div
                     onClick={() => setIsEditingContent(true)}
-                    className="w-full min-h-[5rem] cursor-text bg-white/5 p-4 rounded-xl border border-white/10 backdrop-blur"
+                    style={{
+                        minHeight: '5rem', cursor: 'text',
+                        background: 'rgba(255,255,255,0.025)',
+                        border: '0.5px solid rgba(255,255,255,0.06)',
+                        borderRadius: 10, padding: '10px 12px',
+                    }}
                 >
-                    <div className="prose prose-invert prose-sm max-w-none leading-relaxed prose-headings:text-blue-400 prose-strong:text-purple-400 prose-li:marker:text-blue-400">
+                    <div className="prose prose-invert prose-sm max-w-none leading-relaxed"
+                        style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(232,234,240,0.65)' }}>
                         <ReactMarkdown>
-                            {content || "Describe your idea..."}
+                            {content || 'Click to describe your idea...'}
                         </ReactMarkdown>
                     </div>
                 </div>
             )}
 
-            <div className="flex gap-2 mt-3 flex-wrap">
-                {idea.tags.map(tag => (
-                    <span key={tag} className={`flex items-center text-[10px] font-semibold tracking-wider uppercase ${colorStyle.tagBg} ${colorStyle.text} px-2 py-0.5 rounded-md border border-white/5`}>
-                        <Tag className="w-2.5 h-2.5 mr-1" />
-                        {tag}
-                    </span>
-                ))}
-            </div>
+            {/* Tags */}
+            {idea.tags.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                    {idea.tags.map(tag => (
+                        <span key={tag}
+                            className={`${colorStyle.tagBg} ${colorStyle.text}`}
+                            style={{
+                                display: 'inline-flex', alignItems: 'center', gap: 4,
+                                fontSize: 10, fontWeight: 600, letterSpacing: '0.08em',
+                                textTransform: 'uppercase', padding: '2px 8px', borderRadius: 99,
+                                border: '0.5px solid rgba(255,255,255,0.06)',
+                                fontFamily: "'DM Sans', sans-serif",
+                            }}
+                        >
+                            <Tag style={{ width: 9, height: 9 }} />
+                            {tag}
+                        </span>
+                    ))}
+                </div>
+            )}
         </motion.div>
     );
 });

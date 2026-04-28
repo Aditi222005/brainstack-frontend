@@ -1,5 +1,4 @@
 import { ChevronRight, Brain, Lightbulb, Network, Plus, Compass } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
 import { Idea } from './IdeaCard';
 import { NodeColor, EdgeType, EDGE_TYPES } from './boardTheme';
 
@@ -36,53 +35,170 @@ export function RightInsightPanel({ isOpen, togglePanel, insights, isLoading, on
     return (
         <>
             <div
-                className={`fixed top-0 right-0 h-full bg-[#0B0F19]/90 backdrop-blur-3xl border-l border-indigo-500/20 z-40 transition-transform duration-500 ease-out w-80 shadow-[-20px_0_50px_rgba(0,0,0,0.7)] flex flex-col ${!isOpen ? 'translate-x-full' : 'translate-x-0'}`}
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    right: 0,
+                    height: '100%',
+                    background: 'rgba(11,15,26,0.92)',
+                    backdropFilter: 'blur(24px)',
+                    WebkitBackdropFilter: 'blur(24px)',
+                    borderLeft: '0.5px solid var(--color-border)',
+                    zIndex: 40,
+                    transition: 'transform 0.4s cubic-bezier(0.16,1,0.3,1)',
+                    width: 320,
+                    boxShadow: '-20px 0 50px rgba(0,0,0,0.6)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transform: !isOpen ? 'translateX(100%)' : 'translateX(0)',
+                }}
             >
+                {/* Toggle button */}
                 <button
                     onClick={togglePanel}
-                    className="absolute top-1/2 -left-10 w-10 h-24 bg-[#0B0F19]/90 border-l border-t border-b border-indigo-500/30 rounded-l-2xl flex items-center justify-center cursor-pointer transition-all hover:bg-indigo-900/40 text-indigo-400 z-50 shadow-[-10px_0_20px_rgba(99,102,241,0.2)] group"
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: -40,
+                        transform: 'translateY(-50%)',
+                        width: 40,
+                        height: 88,
+                        background: 'rgba(11,15,26,0.92)',
+                        border: '0.5px solid var(--color-border)',
+                        borderRight: 'none',
+                        borderRadius: '12px 0 0 12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        color: 'var(--color-primary)',
+                        zIndex: 50,
+                        transition: 'background 0.2s',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(124,111,255,0.12)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(11,15,26,0.92)')}
                 >
-                    <ChevronRight className={`w-6 h-6 transition-transform duration-500 ${!isOpen ? 'rotate-180 text-cyan-400' : 'text-indigo-400 group-hover:translate-x-1'}`} />
+                    <ChevronRight
+                        style={{
+                            width: 20,
+                            height: 20,
+                            transition: 'transform 0.4s',
+                            transform: !isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                            color: !isOpen ? 'var(--color-secondary)' : 'var(--color-primary)',
+                        }}
+                    />
                 </button>
 
-                <div className="p-6 overflow-y-auto w-full h-full text-[#E5E7EB] scrollbar-hide">
-                    <h2 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-br from-indigo-300 via-cyan-300 to-purple-400 border-b border-white/5 pb-5 mb-8 flex items-center gap-3">
-                        <Brain className="w-6 h-6 text-indigo-400" />
+                {/* Panel content */}
+                <div
+                    className="scrollbar-hide"
+                    style={{
+                        padding: 24,
+                        overflowY: 'auto',
+                        width: '100%',
+                        height: '100%',
+                        color: 'var(--color-text)',
+                    }}
+                >
+                    {/* Header */}
+                    <h2
+                        style={{
+                            fontFamily: "'Sora', sans-serif",
+                            fontWeight: 800,
+                            fontSize: 18,
+                            background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                            borderBottom: '0.5px solid var(--color-border)',
+                            paddingBottom: 16,
+                            marginBottom: 24,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                        }}
+                    >
+                        <Brain style={{ width: 20, height: 20, color: 'var(--color-primary)', WebkitTextFillColor: 'var(--color-primary)' }} />
                         AI Brain
                     </h2>
 
                     {isLoading ? (
-                        <div className="flex flex-col items-center justify-center h-[60vh] text-indigo-400">
-                            <div className="relative mb-6">
-                                <Brain className="w-12 h-12 animate-pulse" />
-                                <div className="absolute inset-0 w-12 h-12 bg-indigo-500/20 blur-xl animate-ping rounded-full" />
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: 16 }}>
+                            <div style={{ position: 'relative' }}>
+                                <Brain style={{ width: 44, height: 44, color: 'var(--color-primary)', animation: 'pulse 2s infinite' }} />
+                                <div style={{ position: 'absolute', inset: 0, background: 'rgba(124,111,255,0.2)', filter: 'blur(12px)', borderRadius: '50%', animation: 'ping 1s infinite' }} />
                             </div>
-                            <p className="text-xs font-bold animate-pulse tracking-[0.2em] uppercase text-indigo-300/80">Synthesizing Neural Map...</p>
+                            <p
+                                style={{
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 11,
+                                    fontWeight: 500,
+                                    letterSpacing: '0.15em',
+                                    textTransform: 'uppercase',
+                                    color: 'var(--color-muted)',
+                                    animation: 'pulse 2s infinite',
+                                }}
+                            >
+                                Synthesizing Neural Map...
+                            </p>
                         </div>
                     ) : insights ? (
-                        <div className="space-y-10 pb-10">
-                            {/* Cognitive Summary Section */}
-                            <section className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                <h3 className="flex items-center gap-2 text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em] mb-4 opacity-80">
-                                    <SparklesIcon className="w-3.5 h-3.5" />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 28, paddingBottom: 24 }}>
+                            {/* Cognitive Summary */}
+                            <section>
+                                <h3
+                                    style={{
+                                        fontFamily: "'Sora', sans-serif",
+                                        fontWeight: 700,
+                                        fontSize: 11,
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.15em',
+                                        color: 'var(--color-primary)',
+                                        marginBottom: 12,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 6,
+                                    }}
+                                >
+                                    <SparklesIcon style={{ width: 12, height: 12 }} />
                                     Cognitive Summary
                                 </h3>
-                                <div className="space-y-2">
-                                    {/* Normalise: split on newlines first, then on inline • separators */}
-                                    {insights.summary
-                                        .split('\n')
-                                        .flatMap(line => line.split('•'))
-                                        .map(s => s.trim())
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                    {(Array.isArray(insights.summary)
+                                        ? insights.summary
+                                        : (insights.summary || '')
+                                            .toString()
+                                            .split('\n')
+                                            .flatMap(line => line.split('•'))
+                                    )
+                                        .map(s => typeof s === 'string' ? s.trim() : '')
                                         .filter(Boolean)
                                         .map((point, i) => (
                                             <div
                                                 key={i}
-                                                className="flex items-start gap-3 bg-gradient-to-r from-indigo-500/10 to-purple-500/5 rounded-xl px-4 py-3 border border-indigo-500/15 shadow-sm"
-                                                style={{ animationDelay: `${i * 60}ms` }}
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'flex-start',
+                                                    gap: 10,
+                                                    background: 'rgba(124,111,255,0.06)',
+                                                    borderRadius: 'var(--radius-sm)',
+                                                    padding: '10px 12px',
+                                                    border: '0.5px solid rgba(124,111,255,0.12)',
+                                                }}
                                             >
-                                                {/* Glowing bullet dot */}
-                                                <span className="mt-[5px] flex-shrink-0 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-indigo-400 to-cyan-400 shadow-[0_0_6px_rgba(99,102,241,0.8)]" />
-                                                <p className="text-xs text-[#E5E7EB]/80 leading-relaxed">
+                                                <span
+                                                    style={{
+                                                        marginTop: 5,
+                                                        flexShrink: 0,
+                                                        width: 6,
+                                                        height: 6,
+                                                        borderRadius: '50%',
+                                                        background: 'var(--color-primary)',
+                                                        boxShadow: '0 0 6px rgba(124,111,255,0.8)',
+                                                        display: 'inline-block',
+                                                    }}
+                                                />
+                                                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'var(--color-muted)', lineHeight: 1.6, margin: 0 }}>
                                                     {point}
                                                 </p>
                                             </div>
@@ -90,18 +206,44 @@ export function RightInsightPanel({ isOpen, togglePanel, insights, isLoading, on
                                 </div>
                             </section>
 
-
-                            {/* How to Explore Section */}
+                            {/* How to Explore */}
                             {insights.howToUseBoard && insights.howToUseBoard.length > 0 && (
-                                <section className="animate-in fade-in slide-in-from-right-4 duration-700 delay-150">
-                                    <h3 className="flex items-center gap-2 text-[10px] font-bold text-emerald-400 uppercase tracking-[0.2em] mb-4 opacity-80">
-                                        <Compass className="w-3.5 h-3.5" />
+                                <section>
+                                    <h3
+                                        style={{
+                                            fontFamily: "'Sora', sans-serif",
+                                            fontWeight: 700,
+                                            fontSize: 11,
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.15em',
+                                            color: '#10b981',
+                                            marginBottom: 12,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 6,
+                                        }}
+                                    >
+                                        <Compass style={{ width: 12, height: 12 }} />
                                         How to Explore
                                     </h3>
-                                    <ul className="space-y-2">
+                                    <ul style={{ display: 'flex', flexDirection: 'column', gap: 6, listStyle: 'none', padding: 0, margin: 0 }}>
                                         {insights.howToUseBoard.map((step, idx) => (
-                                            <li key={idx} className="flex gap-3 text-xs text-[#E5E7EB]/60 bg-white/5 p-3 rounded-xl border border-white/5 items-start">
-                                                <span className="text-emerald-400 font-mono font-bold">0{idx + 1}</span>
+                                            <li
+                                                key={idx}
+                                                style={{
+                                                    display: 'flex',
+                                                    gap: 10,
+                                                    fontFamily: "'DM Sans', sans-serif",
+                                                    fontSize: 12,
+                                                    color: 'var(--color-muted)',
+                                                    background: 'rgba(255,255,255,0.03)',
+                                                    padding: '10px 12px',
+                                                    borderRadius: 'var(--radius-sm)',
+                                                    border: '0.5px solid var(--color-border)',
+                                                    alignItems: 'flex-start',
+                                                }}
+                                            >
+                                                <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 11, color: '#10b981', flexShrink: 0 }}>0{idx + 1}</span>
                                                 {step}
                                             </li>
                                         ))}
@@ -109,30 +251,54 @@ export function RightInsightPanel({ isOpen, togglePanel, insights, isLoading, on
                                 </section>
                             )}
 
-                            {/* Suggested Connections Section */}
+                            {/* Suggested Connections */}
                             {insights.connections && insights.connections.length > 0 && (
-                                <section className="animate-in fade-in slide-in-from-right-4 duration-700 delay-300">
-                                    <h3 className="flex items-center gap-2 text-[10px] font-bold text-cyan-400 uppercase tracking-[0.2em] mb-4 opacity-80">
-                                        <Network className="w-3.5 h-3.5" />
+                                <section>
+                                    <h3
+                                        style={{
+                                            fontFamily: "'Sora', sans-serif",
+                                            fontWeight: 700,
+                                            fontSize: 11,
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.15em',
+                                            color: 'var(--color-secondary)',
+                                            marginBottom: 12,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 6,
+                                        }}
+                                    >
+                                        <Network style={{ width: 12, height: 12 }} />
                                         Suggested Connections
                                     </h3>
-                                    <ul className="space-y-2">
+                                    <ul style={{ display: 'flex', flexDirection: 'column', gap: 6, listStyle: 'none', padding: 0, margin: 0 }}>
                                         {insights.connections.map((conn, idx) => {
                                             const config = EDGE_TYPES[conn.type] || EDGE_TYPES.relates_to;
                                             return (
-                                                <li 
-                                                    key={idx} 
+                                                <li
+                                                    key={idx}
                                                     onClick={() => onAddConnection(conn.source, conn.target, conn.type)}
-                                                    className="bg-cyan-500/5 hover:bg-white/5 cursor-pointer rounded-xl p-3 border transition-all flex flex-col gap-1 group active:scale-95 duration-150"
-                                                    style={{ borderColor: `${config.color}33` }} // 0x33 = 20% alpha
+                                                    style={{
+                                                        background: 'rgba(0,210,200,0.04)',
+                                                        cursor: 'pointer',
+                                                        borderRadius: 'var(--radius-sm)',
+                                                        padding: '10px 12px',
+                                                        border: `0.5px solid ${config.color}33`,
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        gap: 4,
+                                                        transition: 'background 0.2s',
+                                                    }}
+                                                    onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+                                                    onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(0,210,200,0.04)')}
                                                 >
-                                                    <div className="flex justify-between items-center">
-                                                        <span className="text-xs font-bold" style={{ color: config.color }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: config.color }}>
                                                             {conn.source} → {conn.target}
                                                         </span>
-                                                        <Plus className="w-3.5 h-3.5 opacity-30 group-hover:opacity-100 transition-opacity" style={{ color: config.color }} />
+                                                        <Plus style={{ width: 12, height: 12, color: config.color, opacity: 0.5 }} />
                                                     </div>
-                                                    <span className="text-[10px] text-[#E5E7EB]/50">
+                                                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: 'var(--color-muted)' }}>
                                                         {config.label}: {conn.label}
                                                     </span>
                                                 </li>
@@ -142,32 +308,64 @@ export function RightInsightPanel({ isOpen, togglePanel, insights, isLoading, on
                                 </section>
                             )}
 
-                            {/* Optional Ideas Section */}
+                            {/* Optional Ideas */}
                             {insights.suggestedNodes && insights.suggestedNodes.length > 0 && (
-                                <section className="animate-in fade-in slide-in-from-right-4 duration-700 delay-500">
-                                    <h3 className="flex items-center gap-2 text-[10px] font-bold text-pink-400 uppercase tracking-[0.2em] mb-4 opacity-80">
-                                        <Lightbulb className="w-3.5 h-3.5" />
+                                <section>
+                                    <h3
+                                        style={{
+                                            fontFamily: "'Sora', sans-serif",
+                                            fontWeight: 700,
+                                            fontSize: 11,
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.15em',
+                                            color: '#ec4899',
+                                            marginBottom: 12,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 6,
+                                        }}
+                                    >
+                                        <Lightbulb style={{ width: 12, height: 12 }} />
                                         Optional Ideas
                                     </h3>
-                                    <div className="space-y-3">
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                                         {insights.suggestedNodes.map((node, idx) => (
-                                            <div 
-                                                key={idx} 
+                                            <div
+                                                key={idx}
                                                 onClick={() => onAddIdea({
                                                     title: node.title,
                                                     content: node.content,
                                                     color: node.color,
-                                                    // Place near center with slight random offset
                                                     x: window.innerWidth / 2 - 100 + (Math.random() * 200 - 100),
                                                     y: window.innerHeight / 2 - 50 + (Math.random() * 200 - 100)
                                                 })}
-                                                className="bg-pink-500/5 hover:bg-pink-500/15 rounded-xl p-3 border border-pink-500/10 transition-all flex flex-col gap-1 group hover:border-pink-500/30 cursor-pointer active:scale-95 duration-150"
+                                                style={{
+                                                    background: 'rgba(236,72,153,0.05)',
+                                                    cursor: 'pointer',
+                                                    borderRadius: 'var(--radius-sm)',
+                                                    padding: '10px 12px',
+                                                    border: '0.5px solid rgba(236,72,153,0.12)',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: 4,
+                                                    transition: 'background 0.2s, border-color 0.2s',
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    (e.currentTarget as HTMLDivElement).style.background = 'rgba(236,72,153,0.1)';
+                                                    (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(236,72,153,0.3)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    (e.currentTarget as HTMLDivElement).style.background = 'rgba(236,72,153,0.05)';
+                                                    (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(236,72,153,0.12)';
+                                                }}
                                             >
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-xs font-bold text-pink-300">{node.title}</span>
-                                                    <Plus className="w-3.5 h-3.5 text-pink-400/50 group-hover:text-pink-400 transition-colors" />
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, color: '#f9a8d4' }}>{node.title}</span>
+                                                    <Plus style={{ width: 12, height: 12, color: '#ec4899', opacity: 0.5 }} />
                                                 </div>
-                                                <p className="text-[10px] text-[#E5E7EB]/50 line-clamp-2">{node.content}</p>
+                                                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: 'var(--color-muted)', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                                    {node.content}
+                                                </p>
                                             </div>
                                         ))}
                                     </div>
@@ -175,9 +373,11 @@ export function RightInsightPanel({ isOpen, togglePanel, insights, isLoading, on
                             )}
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-64 text-[#E5E7EB]/40 animate-pulse">
-                            <Brain className="w-8 h-8 mb-4 opacity-20" />
-                            <p className="text-[10px] uppercase tracking-widest text-center px-10">Click Summary in the toolbar to generate insights.</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 200, gap: 12 }}>
+                            <Brain style={{ width: 28, height: 28, color: 'var(--color-muted)', opacity: 0.3 }} />
+                            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-muted)', textAlign: 'center', maxWidth: 180, lineHeight: 1.6 }}>
+                                Click Summary in the toolbar to generate insights.
+                            </p>
                         </div>
                     )}
                 </div>
@@ -186,12 +386,11 @@ export function RightInsightPanel({ isOpen, togglePanel, insights, isLoading, on
     );
 }
 
-function SparklesIcon({ className }: { className?: string }) {
+function SparklesIcon({ style }: { style?: React.CSSProperties }) {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
             <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
             <path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" />
         </svg>
     );
 }
-

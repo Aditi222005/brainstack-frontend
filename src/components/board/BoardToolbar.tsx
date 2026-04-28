@@ -1,5 +1,5 @@
-import { Plus, Wand2, LayoutGrid, Trash2, LogOut, Loader2, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { Plus, Wand2, LayoutGrid, Trash2, LogOut, Loader2, CheckCircle2, AlertCircle, Sparkles, BookmarkPlus } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -18,22 +18,22 @@ interface BoardToolbarProps {
     onSummaryClick?: () => void;
     onAutoConnect?: () => void;
     autoConnectStatus?: AutoConnectStatus;
+    boardLabel?: string;
+    isScratch?: boolean;
+    onSaveToHistory?: () => void;
+    saveStatus?: 'idle' | 'saving' | 'saved' | 'error';
 }
 
-export function BoardToolbar({ onAddIdea, onClearBoard, onSummaryClick, onAutoConnect, autoConnectStatus }: BoardToolbarProps) {
+export function BoardToolbar({ onAddIdea, onClearBoard, onSummaryClick, onAutoConnect, autoConnectStatus, boardLabel, isScratch, onSaveToHistory, saveStatus = 'idle' }: BoardToolbarProps) {
     const [user, setUser] = useState<any>(null);
-    const [projectName, setProjectName] = useState('Brainstack Architect');
     const navigate = useNavigate();
-    const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const status = autoConnectStatus ?? { state: 'idle' as const };
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
-            const parsedUser = JSON.parse(storedUser);
-            setUser(parsedUser);
-            if (parsedUser.projectName) setProjectName(parsedUser.projectName);
+            try { setUser(JSON.parse(storedUser)); } catch (_) {}
         }
 
         const verifyUser = async () => {
@@ -42,7 +42,6 @@ export function BoardToolbar({ onAddIdea, onClearBoard, onSummaryClick, onAutoCo
                 const data = await res.json();
                 if (data.success && data.data) {
                     setUser(data.data);
-                    if (data.data.projectName) setProjectName(data.data.projectName);
                     localStorage.setItem('user', JSON.stringify(data.data));
                 } else {
                     localStorage.removeItem('token');
@@ -67,30 +66,12 @@ export function BoardToolbar({ onAddIdea, onClearBoard, onSummaryClick, onAutoCo
         navigate('/login');
     };
 
-    const handleProjectNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newName = e.target.value;
-        setProjectName(newName);
-        if (debounceTimer.current) clearTimeout(debounceTimer.current);
-        debounceTimer.current = setTimeout(async () => {
-            try {
-                await fetch(`${API_BASE}/auth/project-name`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ projectName: newName }),
-                });
-            } catch (err) {
-                console.error('Failed to update project name', err);
-            }
-        }, 800);
-    };
-
-    // Auto Connect button appearance by state
-    const btnClass: Record<string, string> = {
-        idle:    'bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 shadow-[0_0_15px_rgba(99,102,241,0.4)]',
-        loading: 'bg-indigo-700/60 cursor-wait',
-        done:    'bg-gradient-to-r from-emerald-600 to-cyan-600 shadow-[0_0_15px_rgba(16,185,129,0.4)]',
-        error:   'bg-gradient-to-r from-red-700 to-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]',
+    // Auto Connect button style per state
+    const autoConnectStyle: Record<string, React.CSSProperties> = {
+        idle:    { background: 'var(--color-primary)', boxShadow: '0 0 14px rgba(124,111,255,0.4)' },
+        loading: { background: 'rgba(124,111,255,0.4)', cursor: 'wait' },
+        done:    { background: '#10b981', boxShadow: '0 0 14px rgba(16,185,129,0.4)' },
+        error:   { background: '#ef4444', boxShadow: '0 0 14px rgba(239,68,68,0.3)' },
     };
 
     const btnLabel: Record<string, string> = {
@@ -100,87 +81,165 @@ export function BoardToolbar({ onAddIdea, onClearBoard, onSummaryClick, onAutoCo
         error:   'Failed',
     };
 
+    const pillStyle: React.CSSProperties = {
+        background: 'rgba(13,17,32,0.85)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        border: '0.5px solid rgba(124,111,255,0.15)',
+        borderRadius: 999,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+    };
+
+    const toolBtnStyle: React.CSSProperties = {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '7px 14px',
+        borderRadius: 999,
+        border: 'none',
+        background: 'transparent',
+        cursor: 'pointer',
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: 13,
+        fontWeight: 500,
+        color: 'var(--color-muted)',
+        transition: 'background 0.2s, color 0.2s',
+    };
+
     return (
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-7xl px-8 flex flex-col items-center gap-2">
-            {/* ── Main toolbar row ── */}
-            <div className="w-full flex justify-between items-center">
+        <div style={{ position: 'absolute', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 40, width: '100%', maxWidth: '1400px', padding: '0 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+            {/* ── Main toolbar ── */}
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 
                 {/* Left: User chip */}
-                <div className="flex items-center gap-3 bg-[#111827]/70 backdrop-blur-xl border border-indigo-500/15 px-4 py-2 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 14px', ...pillStyle }}>
                     {user?.photo ? (
-                        <img src={user.photo} alt="Profile" className="w-8 h-8 rounded-full border border-indigo-500/40" />
+                        <img src={user.photo} alt="Profile" style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid rgba(124,111,255,0.4)' }} />
                     ) : (
-                        <div className="w-8 h-8 rounded-full bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-300 text-sm font-bold">
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(124,111,255,0.15)', border: '1px solid rgba(124,111,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 11, color: 'var(--color-primary)' }}>
                             {user?.name?.charAt(0) || 'U'}
                         </div>
                     )}
-                    <div className="hidden md:flex flex-col">
-                        <span className="text-[#E5E7EB] text-sm font-semibold leading-none">{user?.name || 'User'}</span>
-                        <span className="text-[#E5E7EB]/40 text-xs">{user?.email || ''}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column' }} className="hidden md:flex">
+                        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: 'var(--color-text)', lineHeight: 1.2 }}>{user?.name || 'User'}</span>
+                        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: 'var(--color-muted)' }}>{user?.email || ''}</span>
                     </div>
-                    <div className="w-px h-6 bg-indigo-500/15 mx-2 hidden md:block" />
-                    <button onClick={handleLogout} className="text-[#E5E7EB]/40 hover:text-red-400 transition-colors p-1" title="Logout">
-                        <LogOut className="w-4 h-4" />
+                    <div style={{ width: 1, height: 20, background: 'rgba(124,111,255,0.15)', margin: '0 4px' }} className="hidden md:block" />
+                    <button
+                        onClick={handleLogout}
+                        title="Logout"
+                        style={{ ...toolBtnStyle, padding: '4px' }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#ef4444'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-muted)'; }}
+                    >
+                        <LogOut style={{ width: 14, height: 14 }} />
                     </button>
                 </div>
 
                 {/* Center: Actions pill */}
-                <div className="flex items-center gap-4 bg-[#111827]/70 backdrop-blur-xl border border-indigo-500/15 px-6 py-3 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-                    <input
-                        type="text"
-                        value={projectName}
-                        onChange={handleProjectNameChange}
-                        className="bg-transparent text-[#E5E7EB] border-none outline-none font-medium w-40 text-lg hidden sm:block"
-                        placeholder="Project Name"
-                    />
-                    <div className="w-px h-6 bg-indigo-500/15 mx-2 hidden sm:block" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 16px', ...pillStyle }}>
+                    {/* Board label */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }} className="hidden sm:flex">
+                        <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: 13, color: 'var(--color-text)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={boardLabel}>
+                            {boardLabel ?? 'Visual Board'}
+                        </span>
+                        {isScratch && (
+                            <span style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 10,
+                                marginTop: 1,
+                                color: saveStatus === 'saved' ? '#10b981' : saveStatus === 'error' ? '#ef4444' : saveStatus === 'saving' ? 'var(--color-primary)' : '#f59e0b',
+                            }}>
+                                {saveStatus === 'saving' ? '⏳ Saving…' : saveStatus === 'saved' ? '✓ Saved' : saveStatus === 'error' ? '✗ Failed' : '✦ Temporary'}
+                            </span>
+                        )}
+                    </div>
+                    <div style={{ width: 1, height: 20, background: 'rgba(124,111,255,0.15)', margin: '0 8px' }} className="hidden sm:block" />
 
-                    <div className="flex items-center gap-2">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         {/* Add Idea */}
                         <button
                             onClick={onAddIdea}
-                            className="flex items-center gap-2 px-4 py-2 hover:bg-indigo-500/15 rounded-full text-indigo-200 transition-colors text-sm font-medium"
+                            style={toolBtnStyle}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(124,111,255,0.1)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-text)'; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-muted)'; }}
                         >
-                            <Plus className="w-4 h-4" />
+                            <Plus style={{ width: 14, height: 14 }} />
                             <span className="hidden md:block">Add Idea</span>
                         </button>
 
-                        {/* ✨ Auto Connect — fully wired */}
-                        <button
-                            id="auto-connect-btn"
-                            onClick={onAutoConnect}
-                            disabled={status.state === 'loading'}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-white transition-all text-sm font-medium ${btnClass[status.state]}`}
-                        >
-                            {status.state === 'loading' && <Loader2 className="w-4 h-4 animate-spin" />}
-                            {status.state === 'done'    && <CheckCircle2 className="w-4 h-4" />}
-                            {status.state === 'error'   && <AlertCircle className="w-4 h-4" />}
-                            {status.state === 'idle'    && <Wand2 className="w-4 h-4" />}
-                            <span className="hidden md:block">{btnLabel[status.state]}</span>
-                        </button>
+                        {/* Save to History (scratch mode) */}
+                        {isScratch && onSaveToHistory && (
+                            <button
+                                onClick={onSaveToHistory}
+                                disabled={saveStatus === 'saving' || saveStatus === 'saved'}
+                                style={{
+                                    ...toolBtnStyle,
+                                    background: saveStatus === 'saved' ? 'rgba(16,185,129,0.2)' : saveStatus === 'error' ? 'rgba(239,68,68,0.2)' : saveStatus === 'saving' ? 'rgba(124,111,255,0.2)' : 'rgba(124,111,255,0.15)',
+                                    color: 'var(--color-text)',
+                                    cursor: saveStatus === 'saving' || saveStatus === 'saved' ? 'not-allowed' : 'pointer',
+                                }}
+                                title="Save this scratch session to Chat History"
+                            >
+                                {saveStatus === 'saving' ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> :
+                                 saveStatus === 'saved'  ? <CheckCircle2 style={{ width: 14, height: 14 }} /> :
+                                 saveStatus === 'error'  ? <AlertCircle style={{ width: 14, height: 14 }} /> :
+                                 <BookmarkPlus style={{ width: 14, height: 14 }} />}
+                                <span className="hidden md:block">
+                                    {saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? 'Saved!' : saveStatus === 'error' ? 'Retry' : 'Save to History'}
+                                </span>
+                            </button>
+                        )}
+
+                        {/* Auto Connect */}
+                        {onAutoConnect && (
+                            <button
+                                id="auto-connect-btn"
+                                onClick={onAutoConnect}
+                                disabled={status.state === 'loading'}
+                                style={{
+                                    ...toolBtnStyle,
+                                    ...autoConnectStyle[status.state],
+                                    color: 'white',
+                                }}
+                            >
+                                {status.state === 'loading' && <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" />}
+                                {status.state === 'done'    && <CheckCircle2 style={{ width: 14, height: 14 }} />}
+                                {status.state === 'error'   && <AlertCircle style={{ width: 14, height: 14 }} />}
+                                {status.state === 'idle'    && <Wand2 style={{ width: 14, height: 14 }} />}
+                                <span className="hidden md:block">{btnLabel[status.state]}</span>
+                            </button>
+                        )}
 
                         {/* Summary */}
                         <button
                             onClick={onSummaryClick}
-                            className="flex items-center gap-2 px-4 py-2 hover:bg-indigo-500/15 rounded-full text-indigo-200 transition-colors text-sm font-medium"
+                            style={toolBtnStyle}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(124,111,255,0.1)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-text)'; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-muted)'; }}
                         >
-                            <LayoutGrid className="w-4 h-4" />
+                            <LayoutGrid style={{ width: 14, height: 14 }} />
                             <span className="hidden md:block">Summary</span>
                         </button>
 
                         {/* Clear */}
                         <button
                             onClick={onClearBoard}
-                            className="flex items-center gap-2 px-4 py-2 hover:bg-red-500/15 rounded-full text-red-300 transition-colors text-sm font-medium group"
+                            style={{ ...toolBtnStyle }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.1)'; (e.currentTarget as HTMLButtonElement).style.color = '#f87171'; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-muted)'; }}
                         >
-                            <Trash2 className="w-4 h-4 group-hover:text-red-400" />
+                            <Trash2 style={{ width: 14, height: 14 }} />
                             <span className="hidden md:block">Clear</span>
                         </button>
                     </div>
                 </div>
+
+                {/* Right placeholder for balance */}
+                <div style={{ width: 160 }} />
             </div>
 
-            {/* ── Status toast below toolbar ── */}
+            {/* ── Status toast ── */}
             <AnimatePresence>
                 {status.state !== 'idle' && (
                     <motion.div
@@ -188,44 +247,36 @@ export function BoardToolbar({ onAddIdea, onClearBoard, onSummaryClick, onAutoCo
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -8, scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-                        className={`flex items-center gap-3 px-5 py-2.5 rounded-full text-sm font-medium shadow-2xl backdrop-blur-xl border
-                            ${status.state === 'loading'
-                                ? 'bg-indigo-950/80 border-indigo-500/30 text-indigo-200'
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            padding: '8px 20px',
+                            borderRadius: 999,
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 13,
+                            fontWeight: 500,
+                            backdropFilter: 'blur(12px)',
+                            WebkitBackdropFilter: 'blur(12px)',
+                            border: '0.5px solid',
+                            ...(status.state === 'loading'
+                                ? { background: 'rgba(124,111,255,0.15)', borderColor: 'rgba(124,111,255,0.3)', color: 'var(--color-primary)' }
                                 : status.state === 'done' && (status.created ?? 0) > 0
-                                ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-200'
+                                ? { background: 'rgba(16,185,129,0.15)', borderColor: 'rgba(16,185,129,0.3)', color: '#10b981' }
                                 : status.state === 'done'
-                                ? 'bg-[#111827]/80 border-white/10 text-white/50'
-                                : 'bg-red-950/80 border-red-500/30 text-red-200'
-                            }`}
+                                ? { background: 'rgba(255,255,255,0.05)', borderColor: 'var(--color-border)', color: 'var(--color-muted)' }
+                                : { background: 'rgba(239,68,68,0.15)', borderColor: 'rgba(239,68,68,0.3)', color: '#f87171' })
+                        }}
                     >
-                        {status.state === 'loading' && (
-                            <>
-                                <Loader2 className="w-4 h-4 animate-spin text-indigo-400 flex-shrink-0" />
-                                <span>AI is analyzing your ideas and finding meaningful links…</span>
-                            </>
-                        )}
+                        {status.state === 'loading' && <><Loader2 style={{ width: 14, height: 14 }} className="animate-spin flex-shrink-0" /><span>AI is analyzing your ideas and finding meaningful links…</span></>}
                         {status.state === 'done' && (status.created ?? 0) > 0 && (
-                            <>
-                                <Sparkles className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                                <span>
-                                    <strong>{status.created}</strong> new connection{status.created !== 1 ? 's' : ''} discovered!
-                                    {(status.skipped ?? 0) > 0 && (
-                                        <span className="text-emerald-400/60 ml-1.5">· {status.skipped} already existed</span>
-                                    )}
-                                </span>
-                            </>
+                            <><Sparkles style={{ width: 14, height: 14, flexShrink: 0 }} /><span><strong>{status.created}</strong> new connection{status.created !== 1 ? 's' : ''} discovered!{(status.skipped ?? 0) > 0 && <span style={{ opacity: 0.6, marginLeft: 6 }}>· {status.skipped} already existed</span>}</span></>
                         )}
                         {status.state === 'done' && (status.created ?? 0) === 0 && (
-                            <>
-                                <CheckCircle2 className="w-4 h-4 text-white/40 flex-shrink-0" />
-                                <span>{status.message || 'No new connections found.'}</span>
-                            </>
+                            <><CheckCircle2 style={{ width: 14, height: 14, flexShrink: 0 }} /><span>{status.message || 'No new connections found.'}</span></>
                         )}
                         {status.state === 'error' && (
-                            <>
-                                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-                                <span>{status.message || 'Something went wrong. Please try again.'}</span>
-                            </>
+                            <><AlertCircle style={{ width: 14, height: 14, flexShrink: 0 }} /><span>{status.message || 'Something went wrong. Please try again.'}</span></>
                         )}
                     </motion.div>
                 )}

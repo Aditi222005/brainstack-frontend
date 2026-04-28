@@ -1,5 +1,5 @@
 // ─── Node Color System ───
-export type NodeColor = 'blue' | 'purple' | 'green' | 'yellow' | 'red' | 'orange' | 'pink';
+export type NodeColor = 'blue' | 'purple' | 'green' | 'yellow' | 'red' | 'orange' | 'pink' | 'cyan';
 
 export interface NodeColorConfig {
     label: string;
@@ -12,69 +12,14 @@ export interface NodeColorConfig {
 }
 
 export const NODE_COLORS: Record<NodeColor, NodeColorConfig> = {
-    blue: {
-        label: 'General',
-        border: 'border-blue-500/30',
-        glow: 'shadow-[0_0_20px_rgba(59,130,246,0.25)]',
-        bg: 'bg-blue-500/10',
-        text: 'text-blue-300',
-        tagBg: 'bg-blue-900/40',
-        dot: '#3B82F6',
-    },
-    purple: {
-        label: 'Concept',
-        border: 'border-purple-500/30',
-        glow: 'shadow-[0_0_20px_rgba(168,85,247,0.25)]',
-        bg: 'bg-purple-500/10',
-        text: 'text-purple-300',
-        tagBg: 'bg-purple-900/40',
-        dot: '#A855F7',
-    },
-    green: {
-        label: 'Completed',
-        border: 'border-emerald-500/30',
-        glow: 'shadow-[0_0_20px_rgba(16,185,129,0.25)]',
-        bg: 'bg-emerald-500/10',
-        text: 'text-emerald-300',
-        tagBg: 'bg-emerald-900/40',
-        dot: '#10B981',
-    },
-    yellow: {
-        label: 'In Progress',
-        border: 'border-amber-500/30',
-        glow: 'shadow-[0_0_20px_rgba(245,158,11,0.25)]',
-        bg: 'bg-amber-500/10',
-        text: 'text-amber-300',
-        tagBg: 'bg-amber-900/40',
-        dot: '#F59E0B',
-    },
-    red: {
-        label: 'Critical',
-        border: 'border-red-500/30',
-        glow: 'shadow-[0_0_20px_rgba(239,68,68,0.25)]',
-        bg: 'bg-red-500/10',
-        text: 'text-red-300',
-        tagBg: 'bg-red-900/40',
-        dot: '#EF4444',
-    },
-    orange: {
-        label: 'Example',
-        border: 'border-orange-500/30',
-        glow: 'shadow-[0_0_20px_rgba(249,115,22,0.25)]',
-        bg: 'bg-orange-500/10',
-        text: 'text-orange-300',
-        tagBg: 'bg-orange-900/40',
-        dot: '#F97316',
-    },
-    pink: {
-        label: 'Future',
-        border: 'border-pink-500/30',
-        glow: 'shadow-[0_0_20px_rgba(236,72,153,0.25)]',
-        bg: 'bg-pink-500/10',
-        text: 'text-pink-300',
-        tagBg: 'bg-pink-900/40',
-        dot: '#EC4899',
-    },
+    blue: { label: 'General', border: 'border-[rgba(59,130,246,0.25)]', glow: 'shadow-[0_0_20px_rgba(59,130,246,0.15)]', bg: 'bg-[rgba(59,130,246,0.06)]', text: 'text-[#93C5FD]', tagBg: 'bg-[rgba(59,130,246,0.12)]', dot: '#3B82F6' },
+    purple: { label: 'Concept', border: 'border-[rgba(124,111,255,0.30)]', glow: 'shadow-[0_0_20px_rgba(124,111,255,0.15)]', bg: 'bg-[rgba(124,111,255,0.06)]', text: 'text-[#C4B5FD]', tagBg: 'bg-[rgba(124,111,255,0.12)]', dot: '#7C6FFF' },
+    green: { label: 'Completed', border: 'border-[rgba(16,185,129,0.25)]', glow: 'shadow-[0_0_20px_rgba(16,185,129,0.15)]', bg: 'bg-[rgba(16,185,129,0.06)]', text: 'text-[#6EE7B7]', tagBg: 'bg-[rgba(16,185,129,0.12)]', dot: '#10B981' },
+    yellow: { label: 'In Progress', border: 'border-[rgba(245,158,11,0.25)]', glow: 'shadow-[0_0_20px_rgba(245,158,11,0.15)]', bg: 'bg-[rgba(245,158,11,0.06)]', text: 'text-[#FCD34D]', tagBg: 'bg-[rgba(245,158,11,0.12)]', dot: '#F59E0B' },
+    red: { label: 'Critical', border: 'border-[rgba(239,68,68,0.25)]', glow: 'shadow-[0_0_20px_rgba(239,68,68,0.15)]', bg: 'bg-[rgba(239,68,68,0.06)]', text: 'text-[#FCA5A5]', tagBg: 'bg-[rgba(239,68,68,0.12)]', dot: '#EF4444' },
+    orange: { label: 'Example', border: 'border-[rgba(249,115,22,0.25)]', glow: 'shadow-[0_0_20px_rgba(249,115,22,0.15)]', bg: 'bg-[rgba(249,115,22,0.06)]', text: 'text-[#FDBA74]', tagBg: 'bg-[rgba(249,115,22,0.12)]', dot: '#F97316' },
+    pink: { label: 'Future', border: 'border-[rgba(236,72,153,0.25)]', glow: 'shadow-[0_0_20px_rgba(236,72,153,0.15)]', bg: 'bg-[rgba(236,72,153,0.06)]', text: 'text-[#F9A8D4]', tagBg: 'bg-[rgba(236,72,153,0.12)]', dot: '#EC4899' },
+    cyan: { label: 'Research', border: 'border-[rgba(171, 225, 234, 0.25)]', glow: 'shadow-[0_0_20px_rgba(6,182,212,0.15)]', bg: 'bg-[rgba(6,182,212,0.06)]', text: 'text-[#67E8F9]', tagBg: 'bg-[rgba(6,182,212,0.12)]', dot: '#06B6D4' },
 };
 
 // ─── Edge Type System ───
@@ -92,46 +37,10 @@ export interface EdgeTypeConfig {
 }
 
 export const EDGE_TYPES: Record<EdgeType, EdgeTypeConfig> = {
-    relates_to: {
-        label: 'Relates To',
-        description: 'These two ideas share a topic or theme.',
-        example: 'e.g. "Photosynthesis" relates to "Sunlight"',
-        color: '#6366F1',
-        strokeColor: 'rgba(99, 102, 241, 0.5)',
-        glowColor: 'rgba(99, 102, 241, 0.15)',
-        dashArray: '6 3',
-        icon: '🔗',
-    },
-    depends_on: {
-        label: 'Needs First',
-        description: 'You must understand the first idea before this one.',
-        example: 'e.g. "Algebra" needs "Basic Math" first',
-        color: '#F59E0B',
-        strokeColor: 'rgba(245, 158, 11, 0.7)',
-        glowColor: 'rgba(245, 158, 11, 0.15)',
-        dashArray: '0', // solid
-        icon: '⚡',
-    },
-    contradicts: {
-        label: 'Disagrees With',
-        description: 'These ideas have opposing views or conflict.',
-        example: 'e.g. "Evolution" disagrees with "Creationism"',
-        color: '#EF4444',
-        strokeColor: 'rgba(239, 68, 68, 0.6)',
-        glowColor: 'rgba(239, 68, 68, 0.15)',
-        dashArray: '3 3',
-        icon: '⚔️',
-    },
-    inspired_by: {
-        label: 'Inspired By',
-        description: 'This idea came to life because of the other.',
-        example: 'e.g. "Gravity" was inspired by "Falling Apple"',
-        color: '#A855F7',
-        strokeColor: 'rgba(168, 85, 247, 0.6)',
-        glowColor: 'rgba(168, 85, 247, 0.2)',
-        dashArray: '8 4',
-        icon: '✨',
-    },
+    relates_to: { label: 'Relates To', description: 'These two ideas share a topic or theme.', example: 'e.g. "Photosynthesis" relates to "Sunlight"', color: '#7C6FFF', strokeColor: 'rgba(124,111,255,0.45)', glowColor: 'rgba(124,111,255,0.10)', dashArray: '6 3', icon: '🔗' },
+    depends_on: { label: 'Needs First', description: 'You must understand the first idea before this one.', example: 'e.g. "Algebra" needs "Basic Math" first', color: '#00D2C8', strokeColor: 'rgba(0,210,200,0.55)', glowColor: 'rgba(0,210,200,0.10)', dashArray: '0', icon: '⚡' },
+    contradicts: { label: 'Disagrees With', description: 'These ideas have opposing views or conflict.', example: 'e.g. "Evolution" disagrees with "Creationism"', color: '#EF4444', strokeColor: 'rgba(239,68,68,0.50)', glowColor: 'rgba(239,68,68,0.10)', dashArray: '3 3', icon: '⚔️' },
+    inspired_by: { label: 'Inspired By', description: 'This idea came to life because of the other.', example: 'e.g. "Gravity" was inspired by "Falling Apple"', color: '#F97316', strokeColor: 'rgba(249,115,22,0.55)', glowColor: 'rgba(249,115,22,0.12)', dashArray: '8 4', icon: '✨' },
 };
 
 export const EDGE_TYPE_LIST: EdgeType[] = ['relates_to', 'depends_on', 'contradicts', 'inspired_by'];

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -12,49 +11,72 @@ interface AuthInputProps {
   delay?: number;
 }
 
-const AuthInput = ({
-  icon: Icon,
-  placeholder,
-  type = "text",
-  value,
-  onChange,
-  delay = 0,
-}: AuthInputProps) => {
+const AuthInput = ({ icon: Icon, placeholder, type = "text", value, onChange }: AuthInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [focused, setFocused] = useState(false);
   const isPassword = type === "password";
   const inputType = isPassword ? (showPassword ? "text" : "password") : type;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="relative group"
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        background: "var(--color-surface-2)",
+        border: focused
+          ? "0.5px solid var(--color-primary)"
+          : "0.5px solid var(--color-border)",
+        borderRadius: "var(--radius-sm)",
+        padding: "10px 14px",
+        transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+        boxShadow: focused ? "0 0 0 3px rgba(124,111,255,0.15)" : "none",
+      }}
     >
-      <div className="flex items-center rounded-lg border border-border bg-card/50 px-4 py-3 input-glow transition-all duration-300 hover:border-primary/30">
-        <Icon className="h-5 w-5 text-muted-foreground mr-3 transition-colors duration-300 group-focus-within:text-primary" />
-        <input
-          type={inputType}
-          placeholder={placeholder}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground text-sm outline-none"
-        />
-        {isPassword && (
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="text-muted-foreground hover:text-foreground transition-colors duration-200 ml-2"
-          >
-            {showPassword ? (
-              <EyeOff className="h-5 w-5" />
-            ) : (
-              <Eye className="h-5 w-5" />
-            )}
-          </button>
-        )}
-      </div>
-    </motion.div>
+      <Icon
+        size={16}
+        style={{ color: focused ? "var(--color-primary)" : "var(--color-muted)", flexShrink: 0, transition: "color 0.2s" }}
+      />
+      <input
+        type={inputType}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={{
+          flex: 1,
+          background: "transparent",
+          border: "none",
+          outline: "none",
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: 14,
+          fontWeight: 400,
+          color: "var(--color-text)",
+          lineHeight: 1.5,
+        }}
+      />
+      {isPassword && (
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: "var(--color-muted)",
+            display: "flex",
+            alignItems: "center",
+            padding: 0,
+            transition: "color 0.2s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-primary)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-muted)")}
+        >
+          {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+        </button>
+      )}
+    </div>
   );
 };
 
